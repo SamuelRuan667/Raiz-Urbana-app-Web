@@ -1,0 +1,165 @@
+.footer {
+  background-color: #52874b;
+  color: silver;
+  margin-top: auto;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 55px 40px 45px;
+
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1.2fr;
+  gap: 70px;
+}
+
+/* COLUNAS */
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-column h2 {
+  margin: 0 0 15px;
+
+  color: #ffffff;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.footer-column h3 {
+  margin: 0 0 20px;
+
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.footer-column p {
+  max-width: 370px;
+
+  margin: 0;
+
+  color: silver;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* REDES SOCIAIS */
+
+.social-links {
+  display: flex;
+  gap: 12px;
+
+  margin-top: 25px;
+}
+
+.social-links a {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid silver;
+  border-radius: 50%;
+
+  color: silver;
+  text-decoration: none;
+
+  font-size: 18px;
+
+  transition: 0.2s;
+}
+
+.social-links a:hover {
+  background-color: #ffffff;
+  color: #52874b;
+  border-color: #ffffff;
+}
+
+/* LINKS */
+
+.footer-column ul {
+  list-style: none;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.footer-column ul li {
+  font-size: 14px;
+}
+
+.footer-column ul a {
+  color: silver;
+  text-decoration: none;
+
+  transition: 0.2s;
+}
+
+.footer-column ul a:hover {
+  color: #ffffff;
+  padding-left: 4px;
+}
+
+/* CONTATO */
+
+.contact-list {
+  gap: 16px !important;
+}
+
+.contact-list li {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  line-height: 1.5;
+}
+
+.contact-icon {
+  min-width: 20px;
+
+  color: silver;
+  font-size: 16px;
+}
+
+/* RODAPÉ INFERIOR */
+
+.footer-bottom {
+  border-top: 1px solid rgba(192, 192, 192, 0.3);
+
+  padding: 18px 30px;
+
+  text-align: center;
+}
+
+.footer-bottom p {
+  margin: 0;
+
+  color: silver;
+  font-size: 13px;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 800px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+
+    padding: 45px 25px;
+  }
+
+  .footer-column p {
+    max-width: 100%;
+  }
+}

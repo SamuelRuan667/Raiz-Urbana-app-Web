@@ -1,0 +1,514 @@
+/* =========================================
+   PÁGINA SOLICITAR PLANTIO
+========================================= */
+
+.solicitar-page {
+  min-height: 100vh;
+  padding: 50px 20px 70px;
+  background-color: #f4f5f2;
+  color: #202820;
+}
+
+
+/* =========================================
+   CABEÇALHO
+========================================= */
+
+.solicitar-intro {
+  max-width: 850px;
+  margin: 0 auto 30px;
+  text-align: center;
+}
+
+.solicitar-intro h1 {
+  margin: 0 0 15px;
+  color: #263d29;
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.solicitar-intro p {
+  max-width: 760px;
+  margin: 0 auto;
+  color: #5e665f;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+
+/* =========================================
+   CARD DE NOVIDADE
+========================================= */
+
+.novidade-card {
+  max-width: 850px;
+  margin: 0 auto 30px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  background-color: #eef5eb;
+  border: 1px solid #d7e5d2;
+  border-radius: 12px;
+}
+
+.novidade-icone {
+  min-width: 50px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background-color: #ffffff;
+
+  font-size: 25px;
+}
+
+.novidade-card h2 {
+  margin: 0 0 5px;
+  color: #365c39;
+  font-size: 18px;
+}
+
+.novidade-card p {
+  margin: 0;
+  color: #59645a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   FORMULÁRIO
+========================================= */
+
+.plantio-form {
+  max-width: 850px;
+  margin: 0 auto;
+
+  background-color: #ffffff;
+
+  border-radius: 16px;
+
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+
+  overflow: hidden;
+}
+
+
+/* =========================================
+   SEÇÕES
+========================================= */
+
+.form-section {
+  padding: 35px 40px;
+  border-bottom: 1px solid #e8ebe7;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.section-number {
+  color: #52874b;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.section-title h2 {
+  margin: 0;
+
+  color: #263d29;
+
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.location-icon {
+  margin-right: 5px;
+}
+
+.required-title {
+  color: #d96b5f;
+}
+
+
+/* =========================================
+   GRID DO FORMULÁRIO
+========================================= */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+
+/* =========================================
+   CAMPOS
+========================================= */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+
+  color: #303a31;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-group label span {
+  color: #d96b5f;
+  font-weight: 700;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 13px 14px;
+
+  background-color: #f7f8f6;
+
+  border: 1px solid #d9ded8;
+  border-radius: 8px;
+
+  color: #293229;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #929992;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  background-color: #ffffff;
+  border-color: #52874b;
+  box-shadow: 0 0 0 3px rgba(82, 135, 75, 0.1);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+
+/* =========================================
+   CAMPO OPCIONAL
+========================================= */
+
+.campo-opcional {
+  margin-top: 5px;
+
+  color: #8a918a;
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   STATUS DO CEP
+========================================= */
+
+.cep-status {
+  margin-top: 6px;
+
+  color: #52874b;
+
+  font-size: 12px;
+}
+
+.cep-erro {
+  margin-top: 6px;
+
+  color: #d96b5f;
+
+  font-size: 12px;
+}
+
+
+/* =========================================
+   UPLOAD DA FOTO
+========================================= */
+
+.foto-upload {
+  padding: 40px 25px;
+
+  text-align: center;
+
+  background-color: #fafbf9;
+
+  border: 2px dashed #cbd3c9;
+  border-radius: 12px;
+}
+
+.foto-icone {
+  width: 65px;
+  height: 65px;
+
+  margin: 0 auto 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: #eef1ed;
+
+  font-size: 30px;
+}
+
+.foto-upload h3 {
+  margin: 0 0 8px;
+
+  color: #303a31;
+
+  font-size: 18px;
+}
+
+.foto-upload > p {
+  max-width: 550px;
+
+  margin: 0 auto 10px;
+
+  color: #707770;
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.foto-alerta {
+  color: #c85f54 !important;
+  font-weight: 600;
+}
+
+
+/* =========================================
+   INPUT DE ARQUIVO
+========================================= */
+
+.foto-upload input[type="file"] {
+  display: none;
+}
+
+
+/* =========================================
+   BOTÃO CAPTURAR IMAGEM
+========================================= */
+
+.btn-capturar {
+  display: inline-block;
+
+  margin-top: 15px;
+  padding: 11px 22px;
+
+  background-color: #eeeeec;
+
+  border: 1px solid #cdd1cc;
+  border-radius: 8px;
+
+  color: #303630;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-capturar:hover {
+  background-color: #e2e4e0;
+  border-color: #b9beb8;
+}
+
+
+/* =========================================
+   FOTO SELECIONADA
+========================================= */
+
+.foto-selecionada {
+  margin-top: 15px !important;
+
+  color: #52874b !important;
+
+  font-size: 13px !important;
+  font-weight: 600;
+}
+
+
+/* =========================================
+   RODAPÉ DO FORMULÁRIO
+========================================= */
+
+.form-footer {
+  padding: 25px 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  background-color: #fafbf9;
+}
+
+.form-footer p {
+  margin: 0;
+
+  color: #777e77;
+
+  font-size: 12px;
+}
+
+.form-footer p span {
+  color: #d96b5f;
+}
+
+
+/* =========================================
+   BOTÃO ENVIAR
+========================================= */
+
+.btn-enviar {
+  padding: 13px 30px;
+
+  border: none;
+  border-radius: 8px;
+
+  background-color: #52874b;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-enviar:hover {
+  background-color: #416d3c;
+  transform: translateY(-1px);
+}
+
+.btn-enviar:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+
+@media (max-width: 700px) {
+
+  .solicitar-page {
+    padding: 35px 15px 50px;
+  }
+
+  .solicitar-intro h1 {
+    font-size: 30px;
+  }
+
+  .solicitar-intro p {
+    font-size: 14px;
+  }
+
+  .novidade-card {
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .form-section {
+    padding: 28px 22px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .form-footer {
+    padding: 22px;
+
+    flex-direction: column;
+    align-items: stretch;
+
+    text-align: center;
+  }
+
+  .btn-enviar {
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 450px) {
+
+  .solicitar-intro h1 {
+    font-size: 26px;
+  }
+
+  .section-title h2 {
+    font-size: 18px;
+  }
+
+  .novidade-card {
+    flex-direction: column;
+  }
+
+  .novidade-icone {
+    min-width: 45px;
+    width: 45px;
+    height: 45px;
+  }
+
+  .foto-upload {
+    padding: 30px 18px;
+  }
+}

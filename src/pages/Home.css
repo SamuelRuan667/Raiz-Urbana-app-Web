@@ -1,0 +1,650 @@
+/* =========================
+   BASE
+========================= */
+
+.home {
+  width: 100%;
+  color: #20352a;
+}
+
+.home * {
+  box-sizing: border-box;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+  background-color: #fafbf7;
+  min-height: 650px;
+
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  width: 100%;
+  max-width: 1200px;
+
+  margin: 0 auto;
+  padding: 80px 40px;
+
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+
+  gap: 70px;
+}
+
+.hero-text h1 {
+  margin: 0 0 12px;
+
+  color: #20352a;
+
+  font-size: 58px;
+  line-height: 1.05;
+  font-weight: 750;
+}
+
+.hero-text h2 {
+  margin: 0 0 22px;
+
+  color: #b86b32;
+
+  font-size: 27px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.hero-text p {
+  max-width: 590px;
+
+  margin: 0 0 35px;
+
+  color: #59635c;
+
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+
+/* BOTÕES */
+
+.hero-buttons {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 48px;
+
+  padding: 13px 25px;
+
+  border-radius: 8px;
+
+  text-decoration: none;
+
+  font-size: 15px;
+  font-weight: 650;
+
+  transition: 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #355f3c;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #294b30;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: #b86b32;
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background-color: #874a37;
+  transform: translateY(-2px);
+}
+
+
+/* =========================
+   ILUSTRAÇÃO
+========================= */
+
+.hero-illustration {
+  position: relative;
+
+  width: 420px;
+  height: 420px;
+
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.green-circle {
+  width: 350px;
+  height: 350px;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #6eaa65;
+
+  border-radius: 50%;
+
+  box-shadow: 0 15px 40px rgba(53, 95, 60, 0.18);
+}
+
+
+/* ROSTO */
+
+.face {
+  width: 190px;
+  height: 150px;
+
+  position: relative;
+
+  background-color: #ffffff;
+
+  border-radius: 50% 50% 45% 45%;
+}
+
+.eyes {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 55px;
+
+  padding-top: 52px;
+}
+
+.eyes span {
+  width: 13px;
+  height: 13px;
+
+  background-color: #355f3c;
+
+  border-radius: 50%;
+}
+
+.mouth {
+  width: 48px;
+  height: 24px;
+
+  position: absolute;
+
+  left: 50%;
+  bottom: 30px;
+
+  transform: translateX(-50%);
+
+  border-bottom: 5px solid #355f3c;
+
+  border-radius: 0 0 50px 50px;
+}
+
+
+/* FOLHAS */
+
+.illustration-leaf {
+  position: absolute;
+
+  font-size: 48px;
+}
+
+.leaf-one {
+  top: 55px;
+  left: 55px;
+}
+
+.leaf-two {
+  right: 45px;
+  bottom: 60px;
+}
+
+
+/* SELO */
+
+.illustration-badge {
+  position: absolute;
+
+  top: 15px;
+  right: 0;
+
+  z-index: 2;
+
+  padding: 14px 22px;
+
+  background-color: #b86b32;
+
+  color: #ffffff;
+
+  border-radius: 30px;
+
+  font-size: 14px;
+  font-weight: 650;
+
+  box-shadow: 0 8px 20px rgba(164, 95, 72, 0.25);
+}
+
+
+/* =========================
+   SEÇÕES
+========================= */
+
+.learn-section,
+.how-section,
+.capiba-section {
+  padding: 90px 40px;
+}
+
+.learn-section {
+  background-color: #ffffff;
+}
+
+.how-section {
+  background-color: #ffffff;
+}
+
+.capiba-section {
+  background:
+    linear-gradient(
+      135deg,
+      #f1f4eb 0%,
+      #faf8f2 100%
+    );
+}
+
+
+/* TÍTULOS */
+
+.section-title {
+  max-width: 750px;
+
+  margin: 0 auto 50px;
+
+  text-align: center;
+}
+
+.section-title > span {
+  display: inline-block;
+
+  margin-bottom: 10px;
+
+  color: #b86b32;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+}
+
+.section-title h2 {
+  margin: 0 0 15px;
+
+  color: #20352a;
+
+  font-size: 38px;
+  line-height: 1.2;
+}
+
+.section-title p {
+  margin: 0;
+
+  color: #667067;
+
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+
+/* =========================
+   CARDS INFORMATIVOS
+========================= */
+
+.learn-cards {
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 30px;
+}
+
+.info-card {
+  padding: 35px;
+
+  border-radius: 16px;
+
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
+}
+
+.danger-card {
+  background-color: #f8e9e6;
+}
+
+.benefits-card {
+  background-color: #e8f1e4;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  margin-bottom: 25px;
+}
+
+.card-title h3 {
+  margin: 0;
+
+  font-size: 22px;
+}
+
+.danger-card .card-title h3,
+.danger-card li {
+  color: #934e3e;
+}
+
+.benefits-card .card-title h3,
+.benefits-card li {
+  color: #355f3c;
+}
+
+.card-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: #ffffff;
+
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.info-card ul {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.info-card li {
+  margin-bottom: 13px;
+
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.info-card li:last-child {
+  margin-bottom: 0;
+}
+
+
+/* =========================
+   COMO FUNCIONA
+========================= */
+
+.steps {
+  max-width: 1050px;
+
+  margin: 0 auto 45px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 40px;
+}
+
+.step {
+  padding: 35px 25px;
+
+  background-color: #f1f4eb;
+
+  border-radius: 16px;
+
+  text-align: center;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+
+  transition: 0.2s ease;
+}
+
+.step:hover {
+  transform: translateY(-4px);
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.step-number {
+  width: 58px;
+  height: 58px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #355f3c;
+
+  color: #ffffff;
+
+  border-radius: 50%;
+
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.step h3 {
+  margin: 0 0 12px;
+
+  color: #20352a;
+
+  font-size: 21px;
+}
+
+.step p {
+  margin: 0;
+
+  color: #687168;
+
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.center-button {
+  display: flex;
+  justify-content: center;
+}
+
+
+/* =========================
+   CAPIBA
+========================= */
+
+.capiba-content {
+  max-width: 1150px;
+
+  margin: 0 auto;
+}
+
+.capiba-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 25px;
+
+  margin-bottom: 45px;
+}
+
+.capiba-card {
+  padding: 35px 30px;
+
+  background-color: #ffffff;
+
+  border-radius: 16px;
+
+  text-align: center;
+
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.06);
+}
+
+.capiba-icon {
+  width: 58px;
+  height: 58px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 2px solid #b86b32;
+
+  border-radius: 50%;
+
+  color: #b86b32;
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.capiba-card h3 {
+  margin: 0 0 12px;
+
+  color: #20352a;
+
+  font-size: 20px;
+}
+
+.capiba-card p {
+  margin: 0;
+
+  color: #687168;
+
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 900px) {
+
+  .hero-content {
+    grid-template-columns: 1fr;
+
+    text-align: center;
+
+    gap: 50px;
+  }
+
+  .hero-text p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .hero-illustration {
+    width: 350px;
+    height: 350px;
+  }
+
+  .green-circle {
+    width: 300px;
+    height: 300px;
+  }
+
+  .learn-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .capiba-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .hero,
+  .learn-section,
+  .how-section,
+  .capiba-section {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .hero-content {
+    padding: 60px 10px;
+  }
+
+  .hero-text h1 {
+    font-size: 42px;
+  }
+
+  .hero-text h2 {
+    font-size: 23px;
+  }
+
+  .hero-text p {
+    font-size: 16px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .hero-illustration {
+    transform: scale(0.85);
+  }
+
+  .section-title h2 {
+    font-size: 31px;
+  }
+
+  .info-card {
+    padding: 25px;
+  }
+}

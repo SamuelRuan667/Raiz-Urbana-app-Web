@@ -1,0 +1,572 @@
+/* =========================================
+   PÁGINA RECOMPENSAS
+========================================= */
+
+.recompensas-page {
+  min-height: auto;
+
+  padding: 40px 20px 35px;
+
+  background-color: #f4f5f2;
+
+  color: #263d29;
+}
+
+
+/* =========================================
+   CABEÇALHO
+========================================= */
+
+.recompensas-header {
+  max-width: 900px;
+
+  margin: 0 auto 30px;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 15px;
+}
+
+.trofeu-icon {
+  flex-shrink: 0;
+
+  font-size: 34px;
+
+  line-height: 1;
+
+  filter: grayscale(1);
+}
+
+.recompensas-header h1 {
+  margin: 0 0 10px;
+
+  color: #263d29;
+
+  font-size: 32px;
+
+  font-weight: 700;
+}
+
+.recompensas-header p {
+  max-width: 780px;
+
+  margin: 0;
+
+  color: #606960;
+
+  font-size: 15px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   CARD PRINCIPAL
+========================================= */
+
+.recompensas-card {
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  padding: 40px;
+
+  background-color: #ffffff;
+
+  border-radius: 16px;
+
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+}
+
+.recompensas-card > h2 {
+  margin: 0 0 25px;
+
+  color: #263d29;
+
+  font-size: 24px;
+
+  font-weight: 700;
+}
+
+
+/* =========================================
+   SISTEMA DE RECOMPENSAS
+========================================= */
+
+.sistema-recompensas {
+  padding: 25px;
+
+  background-color: #f1f3f1;
+
+  border: 1px solid #e0e4df;
+
+  border-radius: 12px;
+}
+
+.sistema-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 15px;
+}
+
+.sistema-titulo {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.folha-icon {
+  font-size: 22px;
+}
+
+.sistema-titulo h3 {
+  margin: 0;
+
+  color: #263d29;
+
+  font-size: 18px;
+
+  font-weight: 700;
+}
+
+
+/* =========================================
+   SALDO
+========================================= */
+
+.saldo-badge {
+  padding: 9px 14px;
+
+  background-color: #e9ece8;
+
+  border-radius: 20px;
+
+  color: #38533b;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.saldo-badge span {
+  color: #b86b32;
+
+  font-size: 16px;
+}
+
+.sistema-recompensas > p {
+  margin: 0;
+
+  color: #626a63;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   RECOMPENSAS DISPONÍVEIS
+========================================= */
+
+.recompensas-disponiveis {
+  margin-top: 35px;
+}
+
+.recompensas-disponiveis > h3 {
+  margin: 0 0 18px;
+
+  color: #263d29;
+
+  font-size: 19px;
+
+  font-weight: 700;
+}
+
+.recompensas-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 18px;
+}
+
+
+/* =========================================
+   CARD DE RECOMPENSA
+========================================= */
+
+.recompensa-item {
+  position: relative;
+
+  min-height: 190px;
+
+  padding: 22px;
+
+  background-color: #f1f3f1;
+
+  border: 1px solid #dfe3e5;
+
+  border-radius: 12px;
+
+  box-sizing: border-box;
+}
+
+.recompensa-item h4 {
+  max-width: 85%;
+
+  margin: 0 0 14px;
+
+  color: #344038;
+
+  font-size: 16px;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================
+   ÍCONE DE PORCENTAGEM
+========================================= */
+
+.recompensa-icon {
+  position: absolute;
+
+  top: 18px;
+  right: 18px;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background-color: #f1dfd1;
+
+  color: #b86b32;
+
+  font-size: 18px;
+
+  font-weight: 700;
+}
+
+
+/* =========================================
+   VALIDADE
+========================================= */
+
+.validade {
+  margin: 0 0 20px;
+
+  color: #737b75;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   RODAPÉ DO CARD
+========================================= */
+
+.recompensa-footer {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.custo {
+  color: #405a43;
+
+  font-size: 14px;
+
+  font-weight: 700;
+}
+
+.custo span {
+  color: #b86b32;
+
+  font-size: 16px;
+}
+
+
+/* =========================================
+   BOTÃO RESGATAR
+========================================= */
+
+.resgatar-button {
+  padding: 8px 15px;
+
+  border: 1px solid #b86b32;
+
+  border-radius: 7px;
+
+  background-color: #b86b32;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background-color 0.2s ease;
+}
+
+.resgatar-button:hover:not(:disabled) {
+  background-color: #9f5929;
+}
+
+.resgatar-button:hover:not(:disabled) {
+  background-color: #416d3c;
+}
+
+.resgatar-button.disabled,
+.resgatar-button:disabled {
+  border-color: #c9cdca;
+
+  background-color: #c9cdca;
+
+  color: #f4f4f4;
+
+  cursor: not-allowed;
+}
+
+
+/* =========================================
+   COMO GANHAR MOEDAS
+========================================= */
+
+.ganhar-moedas {
+  margin-top: 40px;
+
+  padding-top: 30px;
+
+  border-top: 1px solid #e1e5e1;
+}
+
+.ganhar-moedas h3 {
+  margin: 0 0 22px;
+
+  color: #263d29;
+
+  font-size: 19px;
+
+  font-weight: 700;
+}
+
+.ganhar-lista {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 15px;
+}
+
+.ganhar-item {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  padding: 15px;
+
+  background-color: #f7f8f6;
+
+  border-radius: 9px;
+}
+
+.ganhar-icon {
+  flex-shrink: 0;
+
+  font-size: 20px;
+}
+
+.ganhar-item strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #3b473d;
+
+  font-size: 14px;
+}
+
+.ganhar-item p {
+  margin: 0;
+
+  color: #737a74;
+
+  font-size: 12px;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================
+   CTA
+========================================= */
+
+.recompensas-cta {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-top: 35px;
+
+  padding: 22px 25px;
+
+  background-color: #f1f3f1;
+
+  border-radius: 10px;
+}
+
+.recompensas-cta p {
+  margin: 0;
+
+  color: #344038;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.recompensas-cta-button {
+  flex-shrink: 0;
+
+  padding: 11px 20px;
+
+  border-radius: 8px;
+
+  background-color: #52874b;
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.recompensas-cta-button:hover {
+  background-color: #416d3c;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+
+@media (max-width: 700px) {
+
+  .recompensas-page {
+    padding: 30px 15px 30px;
+  }
+
+  .recompensas-header {
+    gap: 10px;
+  }
+
+  .recompensas-header h1 {
+    font-size: 27px;
+  }
+
+  .recompensas-header p {
+    font-size: 14px;
+  }
+
+  .recompensas-card {
+    padding: 30px 22px;
+  }
+
+  .sistema-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .saldo-badge {
+    align-self: flex-start;
+  }
+
+  .recompensas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ganhar-lista {
+    grid-template-columns: 1fr;
+  }
+
+  .recompensas-cta {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    text-align: center;
+  }
+
+  .recompensas-cta-button {
+    text-align: center;
+  }
+}
+
+
+@media (max-width: 450px) {
+
+  .recompensas-header {
+    align-items: flex-start;
+  }
+
+  .trofeu-icon {
+    font-size: 28px;
+  }
+
+  .recompensas-header h1 {
+    font-size: 23px;
+  }
+
+  .recompensas-card > h2 {
+    font-size: 21px;
+  }
+
+  .sistema-titulo h3 {
+    font-size: 16px;
+  }
+
+}

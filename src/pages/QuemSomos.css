@@ -1,0 +1,432 @@
+/* =========================================
+   PÁGINA QUEM SOMOS
+========================================= */
+
+.quem-somos-page {
+  min-height: auto;
+  padding: 40px 20px 35px;
+
+  background-color: #f4f5f2;
+
+  color: #263d29;
+}
+
+
+/* =========================================
+   TÍTULO DA PÁGINA
+========================================= */
+
+.quem-somos-title {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: 35px;
+}
+
+.titulo-com-logo {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.quem-somos-title h1 {
+  margin: 0;
+
+  color: #263d29;
+
+  font-size: 36px;
+  font-weight: 700;
+}
+
+
+/* =========================================
+   LOGO AO LADO DE "QUEM SOMOS"
+   COR: LARANJA
+========================================= */
+
+.quem-somos-logo {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.quem-somos-logo .logo-face {
+  position: relative;
+
+  width: 36px;
+  height: 30px;
+
+  background-color: #b86b32;
+
+  border-radius: 50% 50% 45% 45%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+}
+
+.quem-somos-logo .logo-face span {
+  width: 5px;
+  height: 5px;
+
+  background-color: #ffffff;
+
+  border-radius: 50%;
+}
+
+.quem-somos-logo .logo-mouth {
+  position: absolute;
+
+  bottom: 6px;
+  left: 50%;
+
+  width: 9px;
+  height: 5px;
+
+  transform: translateX(-50%);
+
+  border-bottom: 2px solid #ffffff;
+
+  border-radius: 50%;
+}
+
+
+/* =========================================
+   CARD PRINCIPAL
+========================================= */
+
+.quem-somos-card {
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  padding: 45px;
+
+  background-color: #ffffff;
+
+  border-radius: 16px;
+
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+}
+
+
+/* =========================================
+   TÍTULOS DAS SEÇÕES
+========================================= */
+
+.missao-section h2,
+.capivara-section h2 {
+  margin: 0 0 15px;
+
+  color: #263d29;
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+
+/* =========================================
+   NOSSA MISSÃO
+========================================= */
+
+.missao-section {
+  margin-bottom: 45px;
+}
+
+.missao-section p {
+  margin: 0;
+
+  color: #606960;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================
+   POR QUE A CAPIVARA?
+========================================= */
+
+.capivara-section {
+  margin-bottom: 45px;
+}
+
+.capivara-content {
+  display: grid;
+
+  grid-template-columns: 230px 1fr;
+
+  align-items: center;
+
+  gap: 40px;
+
+  margin-top: 25px;
+}
+
+
+/* =========================================
+   CÍRCULO DA CAPIVARA
+========================================= */
+
+.capivara-ilustracao {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.capivara-circulo {
+  width: 190px;
+  height: 190px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: #dfe8dc;
+}
+
+
+/* =========================================
+   LOGO DA CAPIVARA
+   COR NORMAL DO HEADER
+========================================= */
+
+.capivara-logo {
+  width: 110px;
+  height: 110px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.capivara-logo .logo-face {
+  position: relative;
+
+  width: 95px;
+  height: 75px;
+
+  background-color: #52874b;
+
+  border-radius: 50% 50% 45% 45%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 18px;
+}
+
+.capivara-logo .logo-face span {
+  width: 10px;
+  height: 10px;
+
+  background-color: #ffffff;
+
+  border-radius: 50%;
+  transform: translateY(20px);
+}
+
+.capivara-logo .logo-mouth {
+  position: absolute;
+
+  bottom: 14px;
+  left: 50%;
+
+  width: 22px;
+  height: 10px;
+
+  transform: translateX(-50%);
+
+  border-bottom: 4px solid #ffffff;
+
+  border-radius: 50%;
+}
+
+
+/* =========================================
+   TEXTO DA CAPIVARA
+========================================= */
+
+.capivara-texto {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+.capivara-texto p {
+  margin: 0;
+
+  color: #606960;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+}
+
+.capivara-texto strong {
+  color: #3d603f;
+}
+
+
+/* =========================================
+   CTA
+========================================= */
+
+.cta-section {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  padding: 28px 30px;
+
+  background-color: #f1f3f1;
+
+  border-radius: 12px;
+}
+
+.cta-content {
+  flex: 1;
+}
+
+.cta-content h2 {
+  margin: 0 0 8px;
+
+  color: #263d29;
+
+  font-size: 20px;
+
+  font-weight: 700;
+}
+
+.cta-content p {
+  margin: 0;
+
+  color: #626a63;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   BOTÃO SOLICITAR PLANTIO
+========================================= */
+
+.cta-button {
+  flex-shrink: 0;
+
+  padding: 13px 24px;
+
+  border-radius: 8px;
+
+  background-color: #52874b;
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.cta-button:hover {
+  background-color: #416d3c;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+
+@media (max-width: 700px) {
+
+  .quem-somos-page {
+    padding: 30px 15px 30px;
+  }
+
+  .quem-somos-title h1 {
+    font-size: 30px;
+  }
+
+  .quem-somos-card {
+    padding: 30px 22px;
+  }
+
+  .capivara-content {
+    grid-template-columns: 1fr;
+
+    gap: 25px;
+  }
+
+  .capivara-circulo {
+    width: 160px;
+    height: 160px;
+  }
+
+  .cta-section {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    text-align: center;
+  }
+
+  .cta-button {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    text-align: center;
+  }
+}
+
+
+@media (max-width: 450px) {
+
+  .quem-somos-title h1 {
+    font-size: 26px;
+  }
+
+  .missao-section h2,
+  .capivara-section h2 {
+    font-size: 21px;
+  }
+
+  .capivara-circulo {
+    width: 140px;
+    height: 140px;
+  }
+
+}
