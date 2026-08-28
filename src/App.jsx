@@ -9,6 +9,7 @@ import ConsultarStatus from "./pages/ConsultarStatus";
 import Recompensas from "./pages/Recompensas";
 import QuemSomos from "./pages/QuemSomos";
 import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               element={<QuemSomos />}
             />
             <Route path="/login" element={<Login />} />
+            <Route path="/cadastro" element={<Cadastro />} />
           </Routes>
         </main>
 
