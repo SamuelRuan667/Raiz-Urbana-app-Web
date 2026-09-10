@@ -1,0 +1,139 @@
+.recuperar-page {
+  min-height: 700px;
+  padding: 70px 20px;
+  background: #fafbf7;
+  box-sizing: border-box;
+}
+
+.recuperar-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.recuperar-card {
+  padding: 42px 36px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 10px 35px rgba(32, 53, 42, 0.08);
+  text-align: center;
+}
+
+.recuperar-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e8f1e4;
+  font-size: 30px;
+}
+
+.recuperar-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #b86b32;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.recuperar-card h1 {
+  margin: 0 0 12px;
+  color: #20352a;
+  font-size: 30px;
+}
+
+.recuperar-descricao {
+  margin: 0 auto 28px;
+  color: #687168;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.recuperar-form {
+  text-align: left;
+}
+
+.recuperar-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+
+.recuperar-field label {
+  color: #20352a;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.recuperar-field input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #dce4da;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #20352a;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: 0.2s ease;
+}
+
+.recuperar-field input:focus {
+  border-color: #52874b;
+  box-shadow: 0 0 0 3px rgba(82, 135, 75, 0.1);
+}
+
+.recuperar-submit {
+  width: 100%;
+  min-height: 44px;
+  border: none;
+  border-radius: 9px;
+  background: #355f3c;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.recuperar-submit:hover {
+  background: #294b30;
+}
+
+.recuperar-voltar {
+  margin-top: 24px;
+}
+
+.recuperar-voltar a {
+  color: #355f3c;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none !important;
+}
+
+.recuperar-voltar a:hover {
+  color: #294b30;
+  text-decoration: none !important;
+}
+
+@media (max-width: 550px) {
+  .recuperar-page {
+    padding: 45px 16px;
+  }
+
+  .recuperar-card {
+    padding: 32px 22px;
+  }
+
+  .recuperar-card h1 {
+    font-size: 26px;
+  }
+}

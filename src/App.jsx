@@ -10,6 +10,11 @@ import Recompensas from "./pages/Recompensas";
 import QuemSomos from "./pages/QuemSomos";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
+import Perfil from "./pages/Perfil";
+import EditarPerfil from "./pages/EditarPerfil";
+import Gestor from "./pages/Gestor";
+import DetalhesSolicitacao from "./pages/DetalhesSolicitacao";
+import RecuperarSenha from "./pages/RecuperarSenha";
 
 function App() {
   return (
@@ -40,6 +45,15 @@ function App() {
             />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/perfil/editar" element={<EditarPerfil />} />
+            <Route path="/gestor" element={<Gestor />} />
+            <Route path="/gestor/solicitacao/:protocolo"
+                  element={<DetalhesSolicitacao />} />
+            <Route
+                    path="/recuperar-senha"
+                    element={<RecuperarSenha />}
+                  />                      
           </Routes>
         </main>
 

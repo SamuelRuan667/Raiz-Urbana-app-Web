@@ -1,0 +1,260 @@
+.gestor-page {
+  min-height: 700px;
+  padding: 60px 20px;
+  background: #fafbf7;
+  box-sizing: border-box;
+}
+
+.gestor-container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* TOPO */
+
+.gestor-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.gestor-label {
+  display: inline-block;
+  margin-bottom: 7px;
+  color: #b86b32;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.gestor-topo h1 {
+  margin: 0 0 8px;
+  color: #20352a;
+  font-size: 32px;
+}
+
+.gestor-topo p {
+  margin: 0;
+  color: #687168;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.gestor-perfil {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(32, 53, 42, 0.06);
+}
+
+.gestor-avatar {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: #e8f1e4;
+  font-size: 20px;
+}
+
+.gestor-perfil strong {
+  display: block;
+  color: #20352a;
+  font-size: 14px;
+}
+
+.gestor-perfil span {
+  display: block;
+  margin-top: 2px;
+  color: #687168;
+  font-size: 12px;
+}
+
+/* RESUMO */
+
+.gestor-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.gestor-resumo-card {
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(32, 53, 42, 0.06);
+}
+
+.gestor-resumo-card span {
+  display: block;
+  margin-bottom: 10px;
+  color: #687168;
+  font-size: 13px;
+}
+
+.gestor-resumo-card strong {
+  color: #20352a;
+  font-size: 30px;
+}
+
+/* LISTA */
+
+.gestor-lista-card {
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(32, 53, 42, 0.07);
+}
+
+.gestor-lista-header {
+  margin-bottom: 24px;
+}
+
+.gestor-lista-header h2 {
+  margin: 0 0 6px;
+  color: #20352a;
+  font-size: 23px;
+}
+
+.gestor-lista-header p {
+  margin: 0;
+  color: #687168;
+  font-size: 14px;
+}
+
+.gestor-tabela-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.gestor-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+.gestor-tabela th {
+  padding: 14px 12px;
+  text-align: left;
+  color: #687168;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e4e9e2;
+}
+
+.gestor-tabela td {
+  padding: 18px 12px;
+  color: #38443c;
+  font-size: 14px;
+  border-bottom: 1px solid #edf0eb;
+}
+
+.gestor-tabela tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.gestor-tabela tbody tr:hover {
+  background: #fafbf7;
+}
+
+.gestor-protocolo {
+  color: #b86b32;
+  font-size: 13px;
+}
+
+/* STATUS */
+
+.gestor-status {
+  display: inline-flex;
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pendente {
+  background: #fff1df;
+  color: #b86b32;
+}
+
+.status-em_analise {
+  background: #eef2e9;
+  color: #59635c;
+}
+
+.status-aprovado {
+  background: #e8f1e4;
+  color: #355f3c;
+}
+
+.status-recusado {
+  background: #fbe9e7;
+  color: #9d4038;
+}
+
+.status-concluido {
+  background: #e8f1e4;
+  color: #355f3c;
+}
+
+/* BOTÃO */
+
+.gestor-ver {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 13px;
+  border: 1px solid #355f3c;
+  border-radius: 7px;
+  color: #355f3c;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none !important;
+  transition: 0.2s ease;
+  white-space: nowrap;
+}
+
+.gestor-ver:hover {
+  background: #355f3c;
+  color: #ffffff;
+  text-decoration: none !important;
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 900px) {
+  .gestor-resumo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .gestor-topo {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 550px) {
+  .gestor-page {
+    padding: 40px 16px;
+  }
+
+  .gestor-resumo {
+    grid-template-columns: 1fr;
+  }
+
+  .gestor-lista-card {
+    padding: 22px 16px;
+  }
+}

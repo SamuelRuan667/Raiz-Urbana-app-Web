@@ -43,6 +43,14 @@ function Header() {
             Login
           </Link>
 
+          <Link
+            to="/perfil"
+            className="profile-button"
+            title="Meu perfil"
+          >
+            👤
+          </Link>
+
         </div>
 
       </div>
