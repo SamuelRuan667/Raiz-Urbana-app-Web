@@ -176,10 +176,12 @@ function SolicitarPlantio() {
   };
 
   // =========================
-  // ENVIO DO FORMULÁRIO
+  // ENVIO DO FORMULÁRIO COM INTEGRAÇÃO
   // =========================
 
-  const handleSubmit = (e) => {
+  const [enviando, setEnviando] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formulario.foto) {
@@ -187,11 +189,73 @@ function SolicitarPlantio() {
       return;
     }
 
-    console.log("Dados da solicitação:", formulario);
+    setEnviando(true);
 
-    alert("Solicitação enviada com sucesso!");
+    try {
+      // 1. Mapeia os campos para os nomes esperados pelo SolicitacaoPlantioRequest.java
+      const dadosEnvio = {
+        nomeCompleto: formulario.nome,
+        cpf: formulario.cpf,
+        telefone: formulario.telefone,
+        email: formulario.email,
+        cep: formulario.cep,
+        bairro: formulario.bairro,
+        ruaAvenida: formulario.rua,
+        numero: formulario.numero || "",
+        pontoReferencia: formulario.referencia,
+        tipoLocal: formulario.tipoLocal,
+        observacoes: formulario.observacoes || ""
+      };
 
-    // Aqui futuramente será feita a integração com o backend.
+      // 2. Prepara o FormData multipart
+      const formData = new FormData();
+      
+      // O Spring espera a parte "dados" como application/json
+      formData.append(
+        "dados",
+        new Blob([JSON.stringify(dadosEnvio)], { type: "application/json" })
+      );
+
+      // Anexa o arquivo com a chave "foto"
+      formData.append("foto", formulario.foto);
+
+      // 3. Dispara a requisição para o Spring Boot
+      const resposta = await fetch("http://localhost:8080/api/solicitacoes", {
+        method: "POST",
+        body: formData, // O navegador define o multipart/form-data automaticamente
+      });
+
+      if (!resposta.ok) {
+        const erroMsg = await resposta.text();
+        throw new Error(erroMsg || "Erro ao processar solicitação.");
+      }
+
+      const respostaJson = await resposta.json();
+      
+      alert(`🎉 Solicitação cadastrada com sucesso!\nSeu Protocolo é: ${respostaJson.protocolo}`);
+
+      // Limpa o formulário após o sucesso
+      setFormulario({
+        nome: "",
+        cpf: "",
+        email: "",
+        telefone: "",
+        cep: "",
+        rua: "",
+        numero: "",
+        bairro: "",
+        referencia: "",
+        tipoLocal: "Calçada em frente à residência",
+        observacoes: "",
+        foto: null,
+      });
+
+    } catch (erro) {
+      console.error("Erro ao enviar para o servidor:", erro);
+      alert("Falha ao enviar a solicitação. Verifique o console da aplicação.");
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -549,8 +613,9 @@ function SolicitarPlantio() {
           <button
             type="submit"
             className="btn-enviar"
+            disabled={enviando}
           >
-            Enviar Solicitação
+            {enviando ? "Enviando..." : "Enviar Solicitação"}
           </button>
         </div>
 
