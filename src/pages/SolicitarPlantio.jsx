@@ -220,7 +220,7 @@ function SolicitarPlantio() {
       formData.append("foto", formulario.foto);
 
       // 3. Dispara a requisição para o Spring Boot
-      const resposta = await fetch("http://localhost:8080/api/solicitacoes", {
+      const resposta = await fetch("https://raiz-urbana-back-end.onrender.com", {
         method: "POST",
         body: formData, // O navegador define o multipart/form-data automaticamente
       });

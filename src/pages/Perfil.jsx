@@ -13,7 +13,7 @@ function Perfil() {
     async function carregarSolicitacoes() {
       try {
         setCarregando(true);
-        const resposta = await fetch("http://localhost:8080/api/solicitacoes");
+        const resposta = await fetch("https://raiz-urbana-back-end.onrender.com");
 
         if (!resposta.ok) {
           throw new Error("Erro ao carregar solicitações");
