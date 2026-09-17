@@ -42,7 +42,7 @@ function Login() {
               <span>Lembrar de mim</span>
             </label>
 
-            <a href="#" className="forgot-password">
+            <a href="/recuperar-senha" className="forgot-password">
               Esqueci minha senha
             </a>
           </div>

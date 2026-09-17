@@ -55,7 +55,12 @@ function ConsultarStatus() {
                 id="protocolo"
                 placeholder="Ex: 123456"
                 value={protocolo}
-                onChange={(e) => setProtocolo(e.target.value)}
+                inputMode="numeric"
+                maxLength={10}
+                onChange={(e) => {
+                  const somenteNumeros = e.target.value.replace(/\D/g,"");
+                  setProtocolo(somenteNumeros);
+                }}
               />
 
               <button
