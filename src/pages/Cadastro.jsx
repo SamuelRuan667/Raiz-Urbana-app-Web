@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API_URL from "../services/api";
 import "./Cadastro.css";
 
 function Cadastro() {
@@ -86,7 +87,7 @@ function Cadastro() {
       setCarregando(true);
 
       const response = await fetch(
-        "http://localhost:8080/api/auth/cadastro",
+        `${API_URL}/api/auth/cadastro`,
         {
           method: "POST",
           headers: {

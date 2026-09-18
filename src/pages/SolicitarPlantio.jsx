@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API_URL from "../services/api";
 import "./SolicitarPlantio.css";
 
 function SolicitarPlantio() {
@@ -220,7 +221,7 @@ function SolicitarPlantio() {
       formData.append("foto", formulario.foto);
 
       // 3. Dispara a requisição para o Spring Boot
-      const resposta = await fetch("https://raiz-urbana-back-end.onrender.com/api/solicitacoes", {
+      const resposta = await fetch(`${API_URL}/api/solicitacoes`, {
         method: "POST",
         body: formData, // O navegador define o multipart/form-data automaticamente
       });
