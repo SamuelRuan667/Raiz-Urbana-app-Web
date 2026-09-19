@@ -185,28 +185,45 @@ function SolicitarPlantio() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formulario.foto) {
-      alert("É obrigatório enviar uma foto do local.");
-      return;
-    }
+  const usuarioSalvo =
+    localStorage.getItem("usuarioLogado") ||
+    sessionStorage.getItem("usuarioLogado");
+
+  if (!usuarioSalvo) {
+    alert("Você precisa estar logado para solicitar um plantio.");
+    return;
+  }
+
+  const usuarioLogado = JSON.parse(usuarioSalvo);
+
+  if (!usuarioLogado.id) {
+    alert("Não foi possível identificar o usuário logado.");
+    return;
+  }
+
+  if (!formulario.foto) {
+    alert("É obrigatório enviar uma foto do local.");
+    return;
+  }
 
     setEnviando(true);
 
     try {
       // 1. Mapeia os campos para os nomes esperados pelo SolicitacaoPlantioRequest.java
       const dadosEnvio = {
-        nomeCompleto: formulario.nome,
-        cpf: formulario.cpf,
-        telefone: formulario.telefone,
-        email: formulario.email,
-        cep: formulario.cep,
-        bairro: formulario.bairro,
-        ruaAvenida: formulario.rua,
-        numero: formulario.numero || "",
-        pontoReferencia: formulario.referencia,
-        tipoLocal: formulario.tipoLocal,
-        observacoes: formulario.observacoes || ""
-      };
+      usuarioId: Number(usuarioLogado.id),
+      nomeCompleto: formulario.nome,
+      cpf: formulario.cpf,
+      telefone: formulario.telefone,
+      email: formulario.email,
+      cep: formulario.cep,
+      bairro: formulario.bairro,
+      ruaAvenida: formulario.rua,
+      numero: formulario.numero || "",
+      pontoReferencia: formulario.referencia || "",
+      tipoLocal: formulario.tipoLocal,
+      observacoes: formulario.observacoes || ""
+    };
 
       // 2. Prepara o FormData multipart
       const formData = new FormData();
