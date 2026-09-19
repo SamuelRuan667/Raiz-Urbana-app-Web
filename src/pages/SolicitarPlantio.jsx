@@ -182,8 +182,8 @@ function SolicitarPlantio() {
 
   const [enviando, setEnviando] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
   const usuarioSalvo =
     localStorage.getItem("usuarioLogado") ||
@@ -194,10 +194,17 @@ function SolicitarPlantio() {
     return;
   }
 
-  const usuarioLogado = JSON.parse(usuarioSalvo);
+  let usuarioLogado;
 
-  if (!usuarioLogado.id) {
-    alert("Não foi possível identificar o usuário logado.");
+  try {
+    usuarioLogado = JSON.parse(usuarioSalvo);
+  } catch {
+    alert("Erro ao identificar o usuário logado. Faça login novamente.");
+    return;
+  }
+
+  if (!usuarioLogado?.id) {
+    alert("Não foi possível identificar o usuário. Faça login novamente.");
     return;
   }
 
@@ -206,11 +213,10 @@ function SolicitarPlantio() {
     return;
   }
 
-    setEnviando(true);
+  setEnviando(true);
 
-    try {
-      // 1. Mapeia os campos para os nomes esperados pelo SolicitacaoPlantioRequest.java
-      const dadosEnvio = {
+  try {
+    const dadosEnvio = {
       usuarioId: Number(usuarioLogado.id),
       nomeCompleto: formulario.nome,
       cpf: formulario.cpf,
@@ -222,59 +228,76 @@ function SolicitarPlantio() {
       numero: formulario.numero || "",
       pontoReferencia: formulario.referencia || "",
       tipoLocal: formulario.tipoLocal,
-      observacoes: formulario.observacoes || ""
+      observacoes: formulario.observacoes || "",
     };
 
-      // 2. Prepara o FormData multipart
-      const formData = new FormData();
-      
-      // O Spring espera a parte "dados" como application/json
-      formData.append(
-        "dados",
-        new Blob([JSON.stringify(dadosEnvio)], { type: "application/json" })
+    console.log("Dados enviados:", dadosEnvio);
+
+    const formData = new FormData();
+
+    formData.append(
+      "dados",
+      new Blob(
+        [JSON.stringify(dadosEnvio)],
+        { type: "application/json" }
+      )
+    );
+
+    formData.append("foto", formulario.foto);
+
+    const resposta = await fetch(
+      `${API_URL}/api/solicitacoes`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!resposta.ok) {
+      const erro = await resposta.text();
+
+      console.error(
+        "Erro do backend:",
+        resposta.status,
+        erro
       );
 
-      // Anexa o arquivo com a chave "foto"
-      formData.append("foto", formulario.foto);
-
-      // 3. Dispara a requisição para o Spring Boot
-      const resposta = await fetch(`${API_URL}/api/solicitacoes`, {
-        method: "POST",
-        body: formData, // O navegador define o multipart/form-data automaticamente
-      });
-
-      if (!resposta.ok) {
-        const erroMsg = await resposta.text();
-        throw new Error(erroMsg || "Erro ao processar solicitação.");
-      }
-
-      const respostaJson = await resposta.json();
-      
-      alert(`🎉 Solicitação cadastrada com sucesso!\nSeu Protocolo é: ${respostaJson.protocolo}`);
-
-      // Limpa o formulário após o sucesso
-      setFormulario({
-        nome: "",
-        cpf: "",
-        email: "",
-        telefone: "",
-        cep: "",
-        rua: "",
-        numero: "",
-        bairro: "",
-        referencia: "",
-        tipoLocal: "Calçada em frente à residência",
-        observacoes: "",
-        foto: null,
-      });
-
-    } catch (erro) {
-      console.error("Erro ao enviar para o servidor:", erro);
-      alert("Falha ao enviar a solicitação. Verifique o console da aplicação.");
-    } finally {
-      setEnviando(false);
+      throw new Error(
+        erro || "Erro ao processar solicitação."
+      );
     }
-  };
+
+    const respostaJson = await resposta.json();
+
+    alert(
+      `🎉 Solicitação cadastrada com sucesso!\nSeu protocolo é: ${respostaJson.protocolo}`
+    );
+
+    setFormulario({
+      nome: "",
+      cpf: "",
+      email: "",
+      telefone: "",
+      cep: "",
+      rua: "",
+      bairro: "",
+      numero: "",
+      referencia: "",
+      tipoLocal: "",
+      observacoes: "",
+      foto: null,
+    });
+
+  } catch (erro) {
+    console.error("Erro ao enviar solicitação:", erro);
+
+    alert(
+      "Não foi possível enviar a solicitação. Verifique os dados e tente novamente."
+    );
+  } finally {
+    setEnviando(false);
+  }
+};
 
   return (
     <main className="solicitar-page">
