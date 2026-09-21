@@ -30,7 +30,7 @@ function Login() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email,
+            email: email.trim(),
             senha,
           }),
         }
@@ -75,7 +75,11 @@ function Login() {
         localStorage.removeItem("usuarioLogado");
       }
 
-      if (resposta.tipo === "GESTOR") {
+      window.dispatchEvent(
+        new Event("usuarioLogadoAtualizado")
+      );
+
+      if (usuario.tipo === "GESTOR") {
         navigate("/gestor");
       } else {
         navigate("/perfil");

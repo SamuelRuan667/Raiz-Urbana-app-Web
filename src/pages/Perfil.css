@@ -263,3 +263,41 @@
     flex-direction: column;
   }
 }
+
+.perfil-acoes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.perfil-sair {
+  padding: 11px 20px;
+  border: 1px solid #b86b32;
+  border-radius: 8px;
+  background: transparent;
+  color: #b86b32;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.perfil-sair:hover {
+  background: #b86b32;
+  color: #ffffff;
+}
+
+@media (max-width: 700px) {
+  .perfil-acoes {
+    width: 100%;
+    margin-left: 0;
+    flex-direction: column;
+  }
+
+  .perfil-editar,
+  .perfil-sair {
+    width: 100%;
+    text-align: center;
+  }
+}

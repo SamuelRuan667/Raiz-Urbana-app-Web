@@ -4,14 +4,9 @@ import "./Home.css";
 function Home() {
   return (
     <div className="home">
-
-      {/* ==================== HERO ==================== */}
       <section className="hero">
-
         <div className="hero-content">
-
           <div className="hero-text">
-
             <h1>Mais árvores, mais vida</h1>
 
             <h2>
@@ -24,7 +19,6 @@ function Home() {
             </p>
 
             <div className="hero-buttons">
-
               <Link
                 to="/solicitar-plantio"
                 className="btn-primary"
@@ -38,31 +32,22 @@ function Home() {
               >
                 Acompanhar Solicitação
               </Link>
-
             </div>
-
           </div>
 
-
-          {/* ILUSTRAÇÃO */}
-
           <div className="hero-illustration">
-
             <div className="illustration-badge">
               Mais vida para a cidade
             </div>
 
             <div className="green-circle">
-
               <div className="face">
-
                 <div className="eyes">
                   <span></span>
                   <span></span>
                 </div>
 
                 <div className="mouth"></div>
-
               </div>
 
               <div className="illustration-leaf leaf-one">
@@ -72,22 +57,13 @@ function Home() {
               <div className="illustration-leaf leaf-two">
                 🌿
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </section>
 
-
-      {/* ==================== SAIBA MAIS ==================== */}
-
       <section className="learn-section">
-
-        <div className="section-title">          
-
+        <div className="section-title">
           <h2>
             Saiba Mais Sobre Arborização
           </h2>
@@ -97,28 +73,19 @@ function Home() {
             importantes e os benefícios que as árvores trazem para
             nossa cidade.
           </p>
-
         </div>
 
-
         <div className="learn-cards">
-
-          {/* NÃO PLANTAR */}
-
           <div className="info-card danger-card">
-
             <div className="card-title">
-
               <div className="card-icon">
                 !
               </div>
 
               <h3>Onde NÃO Plantar</h3>
-
             </div>
 
             <ul>
-
               <li>
                 Sob redes elétricas de alta tensão
               </li>
@@ -142,28 +109,19 @@ function Home() {
               <li>
                 Em frente a pontos de ônibus
               </li>
-
             </ul>
-
           </div>
 
-
-          {/* BENEFÍCIOS */}
-
           <div className="info-card benefits-card">
-
             <div className="card-title">
-
               <div className="card-icon">
                 ✓
               </div>
 
               <h3>Benefícios das Árvores</h3>
-
             </div>
 
             <ul>
-
               <li>
                 Redução da temperatura em até 8°C
               </li>
@@ -187,38 +145,23 @@ function Home() {
               <li>
                 Melhoria da saúde física e mental dos moradores
               </li>
-
             </ul>
-
           </div>
-
         </div>
-
       </section>
 
-
-      {/* ==================== COMO FUNCIONA ==================== */}
-
       <section className="how-section">
-
         <div className="section-title">
-
-          
-
           <h2>Como Funciona</h2>
 
           <p>
             Em poucos passos você pode contribuir para deixar
             Recife mais verde.
           </p>
-
         </div>
 
-
         <div className="steps">
-
           <div className="step">
-
             <div className="step-number">
               1
             </div>
@@ -229,12 +172,9 @@ function Home() {
               Preencha o formulário de solicitação com seus dados
               e o endereço onde deseja o plantio.
             </p>
-
           </div>
 
-
           <div className="step">
-
             <div className="step-number">
               2
             </div>
@@ -245,12 +185,9 @@ function Home() {
               Nossa equipe técnica fará uma avaliação do local
               para verificar a viabilidade do plantio.
             </p>
-
           </div>
 
-
           <div className="step">
-
             <div className="step-number">
               3
             </div>
@@ -261,36 +198,22 @@ function Home() {
               Após o plantio, cuide da sua árvore e compartilhe
               fotos com a gente. Sua cidade agradece!
             </p>
-
           </div>
-
         </div>
 
-
         <div className="center-button">
-
           <Link
             to="/solicitar-plantio"
             className="btn-primary"
           >
             ● Solicitar Agora →
           </Link>
-
         </div>
-
       </section>
 
-
-      {/* ==================== CAPIBA VERDE ==================== */}
-
       <section className="capiba-section">
-
         <div className="capiba-content">
-
           <div className="section-title">
-
-            
-
             <h2>
               Sistema Capiba Verde
             </h2>
@@ -300,16 +223,10 @@ function Home() {
               moedas Capiba toda vez que contribuir para deixar
               Recife mais verde!
             </p>
-
           </div>
 
-
           <div className="capiba-cards">
-
-            {/* MOEDAS */}
-
             <div className="capiba-card">
-
               <div className="capiba-icon">
                 ★
               </div>
@@ -322,14 +239,9 @@ function Home() {
                 Ganhe moedas Capiba para cada ação sustentável
                 realizada. Use-as para resgatar recompensas!
               </p>
-
             </div>
 
-
-            {/* DESAFIOS */}
-
             <div className="capiba-card">
-
               <div className="capiba-icon">
                 🏆
               </div>
@@ -342,14 +254,9 @@ function Home() {
                 Complete desafios especiais e ganhe bônus de
                 moedas Capiba. Fique atento às missões semanais!
               </p>
-
             </div>
 
-
-            {/* CUPONS */}
-
             <div className="capiba-card">
-
               <div className="capiba-icon">
                 %
               </div>
@@ -362,27 +269,55 @@ function Home() {
                 Troque suas moedas por cupons de desconto da
                 Uber, 99Pop e outros parceiros que apoiam nossa causa!
               </p>
-
             </div>
-
           </div>
 
-
           <div className="center-button">
-
             <Link
               to="/recompensas"
               className="btn-secondary"
             >
               🏆 Conhecer as Recompensas →
             </Link>
-
           </div>
-
         </div>
-
       </section>
 
+      <section className="parceiros-home-section">
+        <div className="parceiros-home-content">
+          <div className="parceiros-home-icon">
+            🤝
+          </div>
+
+          <div className="parceiros-home-text">
+            <span className="parceiros-home-label">
+              Empresas Parceiras
+            </span>
+
+            <h2>
+              Sua empresa também pode ajudar a transformar Recife
+            </h2>
+
+            <p>
+              Faça parte do Raiz Urbana e contribua com ações que
+              promovem arborização, sustentabilidade e melhoria dos
+              espaços urbanos.
+            </p>
+
+            <p>
+              Conheça o programa de parcerias, seus benefícios e
+              envie uma proposta para nossa equipe.
+            </p>
+
+            <Link
+              to="/parcerias"
+              className="btn-primary"
+            >
+              Conhecer o programa →
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -8,6 +8,9 @@ function Cadastro() {
 
   const [tipoUsuario, setTipoUsuario] = useState("USUARIO");
   const [carregando, setCarregando] = useState(false);
+  const [buscandoCep, setBuscandoCep] = useState(false);
+  const [erroCep, setErroCep] = useState("");
+  const [erroCpf, setErroCpf] = useState("");
 
   const [form, setForm] = useState({
     nomeCompleto: "",
@@ -24,6 +27,8 @@ function Cadastro() {
     confirmarSenha: "",
     instituicao: "",
     emailInstitucional: "",
+    bairroAtuacao: "",
+    codigoGestor: "",
   });
 
   const handleChange = (e) => {
@@ -35,8 +40,200 @@ function Cadastro() {
     }));
   };
 
+  const validarCpf = (cpf) => {
+    const cpfLimpo = cpf.replace(/\D/g, "");
+
+    if (cpfLimpo.length !== 11) {
+      return false;
+    }
+
+    if (/^(\d)\1{10}$/.test(cpfLimpo)) {
+      return false;
+    }
+
+    let soma = 0;
+
+    for (let i = 0; i < 9; i++) {
+      soma += Number(cpfLimpo.charAt(i)) * (10 - i);
+    }
+
+    let primeiroDigito = (soma * 10) % 11;
+
+    if (primeiroDigito === 10) {
+      primeiroDigito = 0;
+    }
+
+    if (primeiroDigito !== Number(cpfLimpo.charAt(9))) {
+      return false;
+    }
+
+    soma = 0;
+
+    for (let i = 0; i < 10; i++) {
+      soma += Number(cpfLimpo.charAt(i)) * (11 - i);
+    }
+
+    let segundoDigito = (soma * 10) % 11;
+
+    if (segundoDigito === 10) {
+      segundoDigito = 0;
+    }
+
+    return segundoDigito === Number(cpfLimpo.charAt(10));
+  };
+
+  const handleCpfChange = (e) => {
+    let valor = e.target.value.replace(/\D/g, "");
+
+    if (valor.length > 11) {
+      valor = valor.slice(0, 11);
+    }
+
+    valor = valor
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+    setForm((anterior) => ({
+      ...anterior,
+      cpf: valor,
+    }));
+
+    setErroCpf("");
+  };
+
+  const verificarCpf = () => {
+    if (!form.cpf) {
+      setErroCpf("");
+      return;
+    }
+
+    if (!validarCpf(form.cpf)) {
+      setErroCpf("CPF inválido.");
+      return;
+    }
+
+    setErroCpf("");
+  };
+
+  const buscarCep = async (cepDigitado) => {
+    const cepLimpo = cepDigitado.replace(/\D/g, "");
+
+    if (cepLimpo.length !== 8) {
+      setErroCep("Digite um CEP válido com 8 números.");
+
+      setForm((anterior) => ({
+        ...anterior,
+        rua: "",
+        bairro: "",
+        cidade: "",
+        estado: "",
+      }));
+
+      return;
+    }
+
+    setBuscandoCep(true);
+    setErroCep("");
+
+    try {
+      const response = await fetch(
+        `https://viacep.com.br/ws/${cepLimpo}/json/`
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao consultar CEP.");
+      }
+
+      const dados = await response.json();
+
+      if (dados.erro) {
+        setErroCep("CEP não encontrado.");
+
+        setForm((anterior) => ({
+          ...anterior,
+          rua: "",
+          bairro: "",
+          cidade: "",
+          estado: "",
+        }));
+
+        return;
+      }
+
+      setForm((anterior) => ({
+        ...anterior,
+        cep: cepDigitado,
+        rua: dados.logradouro || "",
+        bairro: dados.bairro || "",
+        cidade: dados.localidade || "",
+        estado: dados.uf || "",
+      }));
+    } catch (erro) {
+      console.error("Erro ao consultar ViaCEP:", erro);
+
+      setErroCep("Não foi possível consultar o CEP.");
+
+      setForm((anterior) => ({
+        ...anterior,
+        rua: "",
+        bairro: "",
+        cidade: "",
+        estado: "",
+      }));
+    } finally {
+      setBuscandoCep(false);
+    }
+  };
+
+  const handleCepChange = (e) => {
+    let valor = e.target.value.replace(/\D/g, "");
+
+    if (valor.length > 8) {
+      valor = valor.slice(0, 8);
+    }
+
+    if (valor.length > 5) {
+      valor = valor.replace(/^(\d{5})(\d)/, "$1-$2");
+    }
+
+    setForm((anterior) => ({
+      ...anterior,
+      cep: valor,
+      rua: "",
+      bairro: "",
+      cidade: "",
+      estado: "",
+    }));
+
+    setErroCep("");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validarCpf(form.cpf)) {
+      setErroCpf("CPF inválido.");
+      alert("Informe um CPF válido.");
+      return;
+    }
+
+    const cepLimpo = form.cep.replace(/\D/g, "");
+
+    if (cepLimpo.length !== 8 || erroCep) {
+      alert("Informe um CEP válido.");
+      return;
+    }
+
+    if (
+      !form.rua.trim() ||
+      !form.bairro.trim() ||
+      !form.cidade.trim() ||
+      !form.estado.trim()
+    ) {
+      alert("Consulte um CEP válido antes de criar a conta.");
+      return;
+    }
 
     if (form.senha !== form.confirmarSenha) {
       alert("As senhas não coincidem.");
@@ -50,12 +247,14 @@ function Cadastro() {
 
     if (
       tipoUsuario === "GESTOR" &&
-      (!form.instituicao.trim() ||
-        !form.emailInstitucional.trim())
+      (
+        !form.instituicao.trim() ||
+        !form.emailInstitucional.trim() ||
+        !form.bairroAtuacao.trim() ||
+        !form.codigoGestor.trim()
+      )
     ) {
-      alert(
-        "Preencha a instituição e o e-mail institucional."
-      );
+      alert("Preencha todas as informações do gestor.");
       return;
     }
 
@@ -73,13 +272,25 @@ function Cadastro() {
       senha: form.senha,
       confirmarSenha: form.confirmarSenha,
       tipo: tipoUsuario,
+
       instituicao:
         tipoUsuario === "GESTOR"
           ? form.instituicao
           : null,
+
       emailInstitucional:
         tipoUsuario === "GESTOR"
           ? form.emailInstitucional
+          : null,
+
+      bairroAtuacao:
+        tipoUsuario === "GESTOR"
+          ? form.bairroAtuacao
+          : null,
+
+      codigoGestor:
+        tipoUsuario === "GESTOR"
+          ? form.codigoGestor
           : null,
     };
 
@@ -159,7 +370,9 @@ function Cadastro() {
                 setTipoUsuario("USUARIO")
               }
             >
-              <span className="tipo-icon">👤</span>
+              <span className="tipo-icon">
+                👤
+              </span>
 
               <strong>Usuário</strong>
 
@@ -179,7 +392,9 @@ function Cadastro() {
                 setTipoUsuario("GESTOR")
               }
             >
-              <span className="tipo-icon">🏢</span>
+              <span className="tipo-icon">
+                🏢
+              </span>
 
               <strong>Gestor</strong>
 
@@ -225,9 +440,17 @@ function Cadastro() {
                   name="cpf"
                   placeholder="000.000.000-00"
                   value={form.cpf}
-                  onChange={handleChange}
+                  maxLength={14}
+                  onChange={handleCpfChange}
+                  onBlur={verificarCpf}
                   required
                 />
+
+                {erroCpf && (
+                  <small className="cadastro-error">
+                    {erroCpf}
+                  </small>
+                )}
               </div>
 
               <div className="cadastro-field">
@@ -299,6 +522,38 @@ function Cadastro() {
                   required
                 />
               </div>
+
+              <div className="cadastro-field">
+                <label htmlFor="bairroAtuacao">
+                  Bairro de atuação
+                </label>
+
+                <input
+                  type="text"
+                  id="bairroAtuacao"
+                  name="bairroAtuacao"
+                  placeholder="Digite o bairro de atuação"
+                  value={form.bairroAtuacao}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="cadastro-field">
+                <label htmlFor="codigoGestor">
+                  Senha de autorização do gestor
+                </label>
+
+                <input
+                  type="password"
+                  id="codigoGestor"
+                  name="codigoGestor"
+                  placeholder="Digite a senha de autorização"
+                  value={form.codigoGestor}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
           )}
 
@@ -317,9 +572,25 @@ function Cadastro() {
                   name="cep"
                   placeholder="00000-000"
                   value={form.cep}
-                  onChange={handleChange}
+                  maxLength={9}
+                  onChange={handleCepChange}
+                  onBlur={(e) =>
+                    buscarCep(e.target.value)
+                  }
                   required
                 />
+
+                {buscandoCep && (
+                  <small>
+                    Buscando CEP...
+                  </small>
+                )}
+
+                {erroCep && (
+                  <small className="cadastro-error">
+                    {erroCep}
+                  </small>
+                )}
               </div>
 
               <div className="cadastro-field">
@@ -347,9 +618,9 @@ function Cadastro() {
                 type="text"
                 id="rua"
                 name="rua"
-                placeholder="Digite sua rua"
+                placeholder="Rua"
                 value={form.rua}
-                onChange={handleChange}
+                readOnly
                 required
               />
             </div>
@@ -363,9 +634,9 @@ function Cadastro() {
                 type="text"
                 id="bairro"
                 name="bairro"
-                placeholder="Digite seu bairro"
+                placeholder="Bairro"
                 value={form.bairro}
-                onChange={handleChange}
+                readOnly
                 required
               />
             </div>
@@ -382,7 +653,7 @@ function Cadastro() {
                   name="cidade"
                   placeholder="Cidade"
                   value={form.cidade}
-                  onChange={handleChange}
+                  readOnly
                   required
                 />
               </div>
@@ -397,9 +668,8 @@ function Cadastro() {
                   id="estado"
                   name="estado"
                   placeholder="UF"
-                  maxLength={2}
                   value={form.estado}
-                  onChange={handleChange}
+                  readOnly
                   required
                 />
               </div>
@@ -447,7 +717,7 @@ function Cadastro() {
           <button
             type="submit"
             className="cadastro-submit"
-            disabled={carregando}
+            disabled={carregando || buscandoCep}
           >
             {carregando
               ? "Criando conta..."

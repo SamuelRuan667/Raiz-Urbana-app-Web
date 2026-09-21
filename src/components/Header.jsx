@@ -1,7 +1,65 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Header.css";
 
 function Header() {
+  const [usuarioLogado, setUsuarioLogado] =
+    useState(null);
+
+  const carregarUsuario = () => {
+    const usuarioSalvo =
+      sessionStorage.getItem("usuarioLogado") ||
+      localStorage.getItem("usuarioLogado");
+
+    if (!usuarioSalvo) {
+      setUsuarioLogado(null);
+      return;
+    }
+
+    try {
+      setUsuarioLogado(
+        JSON.parse(usuarioSalvo)
+      );
+    } catch {
+      sessionStorage.removeItem("usuarioLogado");
+      localStorage.removeItem("usuarioLogado");
+      setUsuarioLogado(null);
+    }
+  };
+
+  useEffect(() => {
+    carregarUsuario();
+
+    window.addEventListener(
+      "usuarioLogadoAtualizado",
+      carregarUsuario
+    );
+
+    window.addEventListener(
+      "storage",
+      carregarUsuario
+    );
+
+    return () => {
+      window.removeEventListener(
+        "usuarioLogadoAtualizado",
+        carregarUsuario
+      );
+
+      window.removeEventListener(
+        "storage",
+        carregarUsuario
+      );
+    };
+  }, []);
+
+  const rotaPerfil =
+    usuarioLogado?.tipo === "GESTOR"
+      ? "/gestor"
+      : usuarioLogado
+      ? "/perfil"
+      : "/login";
+
   return (
     <header className="header">
       <div className="header-container">
@@ -22,9 +80,18 @@ function Header() {
 
         <nav className="nav">
           <Link to="/">Início</Link>
-          <Link to="/consultar-status">Consultar Status</Link>
-          <Link to="/recompensas">Recompensas</Link>
-          <Link to="/quem-somos">Quem Somos</Link>
+
+          <Link to="/consultar-status">
+            Consultar Status
+          </Link>
+
+          <Link to="/recompensas">
+            Recompensas
+          </Link>
+
+          <Link to="/quem-somos">
+            Quem Somos
+          </Link>
         </nav>
 
         <div className="header-buttons">
@@ -36,17 +103,25 @@ function Header() {
             Solicitar Plantio
           </Link>
 
-          <Link
-            to="/login"
-            className="login-button"
-          >
-            Login
-          </Link>
+          {!usuarioLogado && (
+            <Link
+              to="/login"
+              className="login-button"
+            >
+              Login
+            </Link>
+          )}
 
           <Link
-            to="/perfil"
+            to={rotaPerfil}
             className="profile-button"
-            title="Meu perfil"
+            title={
+              usuarioLogado
+                ? usuarioLogado.tipo === "GESTOR"
+                  ? "Painel do gestor"
+                  : "Meu perfil"
+                : "Entrar"
+            }
           >
             👤
           </Link>

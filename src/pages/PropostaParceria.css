@@ -1,0 +1,288 @@
+.proposta-parceria-page {
+  min-height: 650px;
+  padding: 70px 20px;
+  display: flex;
+  justify-content: center;
+  background-color: #fafbf7;
+  box-sizing: border-box;
+}
+
+.proposta-parceria-container {
+  width: 100%;
+  max-width: 650px;
+  padding: 45px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(32, 53, 42, 0.08);
+  box-sizing: border-box;
+}
+
+.proposta-parceria-topo {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.proposta-parceria-topo::before {
+  content: "🤝";
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e8f1e4;
+  border-radius: 50%;
+  font-size: 29px;
+}
+
+.proposta-parceria-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #b86b32;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.proposta-parceria-topo h1 {
+  margin: 0 0 10px;
+  color: #20352a;
+  font-size: 30px;
+  text-align: center;
+}
+
+.proposta-parceria-topo p {
+  margin: 0;
+  color: #687168;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.proposta-parceria-form {
+  width: 100%;
+}
+
+.proposta-parceria-card {
+  margin-bottom: 30px;
+}
+
+.proposta-parceria-card h2 {
+  margin: 0 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #edf0eb;
+  color: #20352a;
+  font-size: 19px;
+}
+
+.proposta-parceria-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 15px;
+}
+
+.proposta-parceria-field {
+  margin-bottom: 18px;
+}
+
+.proposta-campo-largo {
+  grid-column: 1 / -1;
+}
+
+.proposta-parceria-field label {
+  display: block;
+  margin-bottom: 7px;
+  color: #20352a;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.proposta-parceria-field input,
+.proposta-parceria-field select,
+.proposta-parceria-field textarea {
+  width: 100%;
+  padding: 0 13px;
+  border: 1px solid #d5ddd4;
+  border-radius: 8px;
+  outline: none;
+  background-color: #ffffff;
+  color: #20352a;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: 0.2s ease;
+}
+
+.proposta-parceria-field input,
+.proposta-parceria-field select {
+  height: 46px;
+}
+
+.proposta-parceria-field textarea {
+  min-height: 130px;
+  padding: 13px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.proposta-parceria-field input::placeholder,
+.proposta-parceria-field textarea::placeholder {
+  color: #9aa39c;
+}
+
+.proposta-parceria-field input:focus,
+.proposta-parceria-field select:focus,
+.proposta-parceria-field textarea:focus {
+  border-color: #355f3c;
+  box-shadow: 0 0 0 3px rgba(53, 95, 60, 0.10);
+}
+
+.proposta-cep-container {
+  display: flex;
+  gap: 8px;
+}
+
+.proposta-cep-container input {
+  flex: 1;
+}
+
+.proposta-buscar-cep {
+  height: 46px;
+  padding: 0 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #355f3c;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.proposta-buscar-cep:hover {
+  background-color: #294b30;
+}
+
+.proposta-buscar-cep:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.proposta-termos {
+  padding: 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: #e8f1e4;
+  border-radius: 10px;
+  color: #4d5b51;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.proposta-termos input {
+  width: 17px;
+  height: 17px;
+  margin: 2px 0 0;
+  flex-shrink: 0;
+  accent-color: #355f3c;
+  cursor: pointer;
+}
+
+.proposta-parceria-acoes {
+  margin-top: 10px;
+  display: flex;
+  gap: 12px;
+}
+
+.proposta-cancelar {
+  width: 35%;
+  min-height: 48px;
+  border: 1px solid #d5ddd4;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #687168;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 650;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: 0.2s ease;
+}
+
+.proposta-cancelar:hover {
+  border-color: #355f3c;
+  color: #355f3c;
+  transform: translateY(-2px);
+}
+
+.proposta-enviar {
+  width: 65%;
+  min-height: 48px;
+  border: none;
+  border-radius: 8px;
+  background-color: #355f3c;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.proposta-enviar:hover {
+  background-color: #294b30;
+  transform: translateY(-2px);
+}
+
+.proposta-enviar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .proposta-parceria-page {
+    padding: 40px 15px;
+  }
+
+  .proposta-parceria-container {
+    padding: 30px 22px;
+  }
+
+  .proposta-parceria-topo h1 {
+    font-size: 27px;
+  }
+
+  .proposta-parceria-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .proposta-campo-largo {
+    grid-column: auto;
+  }
+
+  .proposta-cep-container {
+    flex-direction: column;
+  }
+
+  .proposta-buscar-cep {
+    width: 100%;
+  }
+
+  .proposta-parceria-acoes {
+    flex-direction: column-reverse;
+  }
+
+  .proposta-cancelar,
+  .proposta-enviar {
+    width: 100%;
+  }
+}

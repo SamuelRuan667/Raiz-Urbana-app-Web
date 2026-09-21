@@ -15,6 +15,8 @@ import EditarPerfil from "./pages/EditarPerfil";
 import Gestor from "./pages/Gestor";
 import DetalhesSolicitacao from "./pages/DetalhesSolicitacao";
 import RecuperarSenha from "./pages/RecuperarSenha";
+import Parcerias from "./pages/Parcerias";
+import PropostaParceria from "./pages/PropostaParceria";
 
 function App() {
   return (
@@ -53,8 +55,14 @@ function App() {
             <Route
                     path="/recuperar-senha"
                     element={<RecuperarSenha />}
-                  />                      
+                  />
+            <Route path="/parcerias" element={<Parcerias />} />
+            <Route
+                    path="/parcerias/proposta"
+                    element={<PropostaParceria />}
+                  />
           </Routes>
+          
         </main>
 
         <Footer />
