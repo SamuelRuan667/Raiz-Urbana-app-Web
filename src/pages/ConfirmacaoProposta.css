@@ -1,0 +1,244 @@
+.confirmacao-proposta-page {
+  min-height: 650px;
+  padding: 70px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: #fafbf7;
+  box-sizing: border-box;
+}
+
+.confirmacao-proposta-card {
+  width: 100%;
+  max-width: 650px;
+  padding: 45px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(32, 53, 42, 0.08);
+  box-sizing: border-box;
+}
+
+.confirmacao-proposta-icon {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #e8f1e4;
+  color: #355f3c;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.confirmacao-proposta-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #b86b32;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.confirmacao-proposta-card h1 {
+  margin: 0 0 12px;
+  color: #20352a;
+  font-size: 30px;
+  text-align: center;
+}
+
+.confirmacao-proposta-description {
+  max-width: 520px;
+  margin: 0 auto 32px;
+  color: #687168;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.confirmacao-proposta-status {
+  margin-bottom: 35px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: #faf1e9;
+  border: 1px solid #f0ded0;
+  border-radius: 12px;
+}
+
+.confirmacao-status-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border-radius: 50%;
+  font-size: 21px;
+}
+
+.confirmacao-proposta-status div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.confirmacao-proposta-status span {
+  color: #687168;
+  font-size: 13px;
+}
+
+.confirmacao-proposta-status strong {
+  color: #b86b32;
+  font-size: 16px;
+}
+
+.confirmacao-proposta-etapas {
+  margin-bottom: 30px;
+}
+
+.confirmacao-proposta-etapas h2 {
+  margin: 0 0 22px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #edf0eb;
+  color: #20352a;
+  font-size: 19px;
+}
+
+.confirmacao-etapa {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding-bottom: 24px;
+}
+
+.confirmacao-etapa:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 38px;
+  left: 18px;
+  width: 2px;
+  height: calc(100% - 30px);
+  background-color: #dce7d9;
+}
+
+.confirmacao-etapa-numero {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e8f1e4;
+  border-radius: 50%;
+  color: #355f3c;
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.confirmacao-etapa h3 {
+  margin: 2px 0 5px;
+  color: #20352a;
+  font-size: 15px;
+}
+
+.confirmacao-etapa p {
+  margin: 0;
+  color: #687168;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.confirmacao-proposta-aviso {
+  margin-bottom: 30px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: #e8f1e4;
+  border-radius: 10px;
+}
+
+.confirmacao-proposta-aviso span {
+  font-size: 18px;
+}
+
+.confirmacao-proposta-aviso p {
+  margin: 0;
+  color: #4d5b51;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.confirmacao-proposta-acoes {
+  display: flex;
+  gap: 12px;
+}
+
+.confirmacao-btn-principal,
+.confirmacao-btn-secundario {
+  min-height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.confirmacao-btn-principal {
+  width: 55%;
+  background-color: #355f3c;
+  color: #ffffff;
+}
+
+.confirmacao-btn-principal:hover {
+  background-color: #294b30;
+  transform: translateY(-2px);
+}
+
+.confirmacao-btn-secundario {
+  width: 45%;
+  border: 1px solid #d5ddd4;
+  background-color: #ffffff;
+  color: #687168;
+}
+
+.confirmacao-btn-secundario:hover {
+  border-color: #355f3c;
+  color: #355f3c;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  .confirmacao-proposta-page {
+    padding: 40px 15px;
+  }
+
+  .confirmacao-proposta-card {
+    padding: 30px 22px;
+  }
+
+  .confirmacao-proposta-card h1 {
+    font-size: 27px;
+  }
+
+  .confirmacao-proposta-acoes {
+    flex-direction: column;
+  }
+
+  .confirmacao-btn-principal,
+  .confirmacao-btn-secundario {
+    width: 100%;
+  }
+}

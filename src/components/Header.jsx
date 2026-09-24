@@ -53,12 +53,13 @@ function Header() {
     };
   }, []);
 
-  const rotaPerfil =
-    usuarioLogado?.tipo === "GESTOR"
-      ? "/gestor"
-      : usuarioLogado
-      ? "/perfil"
-      : "/login";
+  const rotaPerfil = !usuarioLogado
+  ? "/login"
+  : usuarioLogado.tipo === "BOSS"
+  ? "/admin"
+  : usuarioLogado.tipo === "GESTOR"
+  ? "/gestor"
+  : "/perfil";
 
   return (
     <header className="header">
@@ -116,11 +117,13 @@ function Header() {
             to={rotaPerfil}
             className="profile-button"
             title={
-              usuarioLogado
-                ? usuarioLogado.tipo === "GESTOR"
-                  ? "Painel do gestor"
-                  : "Meu perfil"
-                : "Entrar"
+              !usuarioLogado
+                ? "Entrar"
+                : usuarioLogado.tipo === "BOSS"
+                ? "Painel administrativo"
+                : usuarioLogado.tipo === "GESTOR"
+                ? "Painel do gestor"
+                : "Meu perfil"
             }
           >
             👤

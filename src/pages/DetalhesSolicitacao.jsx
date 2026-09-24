@@ -1,40 +1,137 @@
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import API_URL from "../services/api";
 import "./DetalhesSolicitacao.css";
 
 function DetalhesSolicitacao() {
-  const { protocolo } = useParams();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const solicitacao = {
-    protocolo: protocolo || "RZ-2026-001",
-    nomeCompleto: "João da Silva",
-    cpf: "000.000.000-00",
-    email: "joao@email.com",
-    telefone: "(81) 99999-9999",
+  const [solicitacao, setSolicitacao] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+  const [atualizando, setAtualizando] = useState(false);
+  const [erro, setErro] = useState("");
 
-    cep: "50000-000",
-    ruaAvenida: "Rua do Sol",
-    numero: "120",
-    bairro: "Boa Vista",
-    pontoReferencia: "Próximo à praça",
+  useEffect(() => {
+    const usuarioSalvo =
+      localStorage.getItem("usuarioLogado") ||
+      sessionStorage.getItem("usuarioLogado");
 
-    tipoLocal: "Calçada",
-    observacoes:
-      "Local com pouca sombra e espaço disponível para plantio.",
+    if (!usuarioSalvo) {
+      navigate("/login");
+      return;
+    }
 
-    dataSolicitacao: "10/09/2026",
-    status: "PENDENTE",
+    try {
+      const usuario = JSON.parse(usuarioSalvo);
+
+      if (
+        usuario.tipo !== "GESTOR" &&
+        usuario.tipo !== "BOSS"
+      ) {
+        navigate("/perfil");
+      }
+    } catch {
+      localStorage.removeItem("usuarioLogado");
+      sessionStorage.removeItem("usuarioLogado");
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    async function carregarSolicitacao() {
+      try {
+        setCarregando(true);
+        setErro("");
+
+        const resposta = await fetch(
+          `${API_URL}/api/solicitacoes/${id}`
+        );
+
+        if (!resposta.ok) {
+          throw new Error(
+            "Não foi possível carregar a solicitação."
+          );
+        }
+
+        const dados = await resposta.json();
+
+        setSolicitacao(dados);
+      } catch (error) {
+        console.error(
+          "Erro ao carregar solicitação:",
+          error
+        );
+
+        setErro(
+          "Não foi possível carregar os dados da solicitação."
+        );
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    if (id) {
+      carregarSolicitacao();
+    }
+  }, [id]);
+
+  const atualizarStatus = async (novoStatus) => {
+    try {
+      setAtualizando(true);
+
+      const resposta = await fetch(
+        `${API_URL}/api/solicitacoes/${id}/status?status=${novoStatus}`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      if (!resposta.ok) {
+        throw new Error(
+          "Não foi possível atualizar o status."
+        );
+      }
+
+      const dadosAtualizados =
+        await resposta.json();
+
+      setSolicitacao(dadosAtualizados);
+
+      alert("Status atualizado com sucesso!");
+    } catch (error) {
+      console.error(
+        "Erro ao atualizar status:",
+        error
+      );
+
+      alert(
+        error.message ||
+          "Não foi possível atualizar a solicitação."
+      );
+    } finally {
+      setAtualizando(false);
+    }
   };
 
   const handleAprovar = () => {
-    alert("Solicitação aprovada!");
+    atualizarStatus("APROVADO");
   };
 
   const handleRecusar = () => {
-    alert("Solicitação recusada!");
+    const confirmar = window.confirm(
+      "Tem certeza que deseja recusar esta solicitação?"
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    atualizarStatus("RECUSADO");
   };
 
   const handleAnalise = () => {
-    alert("Solicitação colocada em análise!");
+    atualizarStatus("EM_ANALISE");
   };
 
   const formatarStatus = (status) => {
@@ -44,6 +141,9 @@ function DetalhesSolicitacao() {
 
       case "EM_ANALISE":
         return "Em análise";
+
+      case "VISITA_AGENDADA":
+        return "Visita agendada";
 
       case "APROVADO":
         return "Aprovado";
@@ -55,15 +155,60 @@ function DetalhesSolicitacao() {
         return "Concluído";
 
       default:
-        return status;
+        return status || "Pendente";
     }
   };
+
+  const formatarData = (data) => {
+    if (!data) {
+      return "Não informada";
+    }
+
+    const dataFormatada = new Date(data);
+
+    if (Number.isNaN(dataFormatada.getTime())) {
+      return data;
+    }
+
+    return dataFormatada.toLocaleDateString(
+      "pt-BR"
+    );
+  };
+
+  if (carregando) {
+    return (
+      <main className="detalhes-page">
+        <div className="detalhes-container">
+          <p>Carregando solicitação...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (erro || !solicitacao) {
+    return (
+      <main className="detalhes-page">
+        <div className="detalhes-container">
+          <Link
+            to="/gestor"
+            className="detalhes-voltar"
+          >
+            ← Voltar para o painel
+          </Link>
+
+          <p>{erro || "Solicitação não encontrada."}</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="detalhes-page">
       <div className="detalhes-container">
-
-        <Link to="/gestor" className="detalhes-voltar">
+        <Link
+          to="/gestor"
+          className="detalhes-voltar"
+        >
           ← Voltar para o painel
         </Link>
 
@@ -76,170 +221,150 @@ function DetalhesSolicitacao() {
             <h1>{solicitacao.protocolo}</h1>
 
             <p>
-              Enviada em {solicitacao.dataSolicitacao}
+              Enviada em{" "}
+              {formatarData(
+                solicitacao.dataSolicitacao
+              )}
             </p>
           </div>
 
           <span
-            className={`detalhes-status status-${solicitacao.status.toLowerCase()}`}
+            className={`detalhes-status status-${(
+              solicitacao.status || "PENDENTE"
+            ).toLowerCase()}`}
           >
-            {formatarStatus(solicitacao.status)}
+            {formatarStatus(
+              solicitacao.status
+            )}
           </span>
         </section>
 
         <section className="detalhes-grid">
-
           <div className="detalhes-card">
-
             <h2>Dados do solicitante</h2>
 
             <div className="detalhes-informacoes">
-
               <div className="detalhes-item">
                 <span>Nome completo</span>
-                <strong>
-                  {solicitacao.nomeCompleto}
-                </strong>
-              </div>
 
-              <div className="detalhes-item">
-                <span>CPF</span>
                 <strong>
-                  {solicitacao.cpf}
+                  {solicitacao.nomeCompleto ||
+                    "Não informado"}
                 </strong>
               </div>
 
               <div className="detalhes-item">
                 <span>E-mail</span>
+
                 <strong>
-                  {solicitacao.email}
+                  {solicitacao.email ||
+                    "Não informado"}
                 </strong>
               </div>
-
-              <div className="detalhes-item">
-                <span>Telefone</span>
-                <strong>
-                  {solicitacao.telefone}
-                </strong>
-              </div>
-
             </div>
-
           </div>
 
           <div className="detalhes-card">
-
             <h2>Endereço do plantio</h2>
 
             <div className="detalhes-informacoes">
-
-              <div className="detalhes-item">
-                <span>CEP</span>
-                <strong>
-                  {solicitacao.cep}
-                </strong>
-              </div>
-
               <div className="detalhes-item">
                 <span>Bairro</span>
+
                 <strong>
-                  {solicitacao.bairro}
+                  {solicitacao.bairro ||
+                    "Não informado"}
                 </strong>
               </div>
 
               <div className="detalhes-item detalhes-item-largo">
                 <span>Rua / Avenida</span>
+
                 <strong>
-                  {solicitacao.ruaAvenida}
+                  {solicitacao.ruaAvenida ||
+                    "Não informado"}
                 </strong>
               </div>
-
-              <div className="detalhes-item">
-                <span>Número</span>
-                <strong>
-                  {solicitacao.numero || "Não informado"}
-                </strong>
-              </div>
-
-              <div className="detalhes-item detalhes-item-largo">
-                <span>Ponto de referência</span>
-                <strong>
-                  {solicitacao.pontoReferencia}
-                </strong>
-              </div>
-
             </div>
-
           </div>
-
         </section>
 
         <section className="detalhes-card detalhes-plantio">
-
-          <h2>Informações do plantio</h2>
+          <h2>Informações da solicitação</h2>
 
           <div className="detalhes-informacoes">
-
             <div className="detalhes-item">
-              <span>Tipo do local</span>
+              <span>ID da solicitação</span>
+
               <strong>
-                {solicitacao.tipoLocal}
+                {solicitacao.id}
               </strong>
             </div>
 
-            <div className="detalhes-item detalhes-item-largo">
-              <span>Observações</span>
+            <div className="detalhes-item">
+              <span>Protocolo</span>
 
-              <p>
-                {solicitacao.observacoes ||
-                  "Nenhuma observação informada."}
-              </p>
+              <strong>
+                {solicitacao.protocolo}
+              </strong>
             </div>
 
-          </div>
+            <div className="detalhes-item">
+              <span>Status atual</span>
 
-        </section>
-
-        <section className="detalhes-card">
-
-          <h2>Foto do local</h2>
-
-          <div className="detalhes-foto">
-
-            <div className="detalhes-foto-placeholder">
-              <span>🌳</span>
-              <p>Foto enviada pelo solicitante</p>
+              <strong>
+                {formatarStatus(
+                  solicitacao.status
+                )}
+              </strong>
             </div>
 
-          </div>
+            <div className="detalhes-item">
+              <span>Data da solicitação</span>
 
+              <strong>
+                {formatarData(
+                  solicitacao.dataSolicitacao
+                )}
+              </strong>
+            </div>
+          </div>
         </section>
 
         <section className="detalhes-card detalhes-decisao">
-
           <div>
             <h2>Análise da solicitação</h2>
 
             <p>
-              Atualize o status após analisar as informações
-              e a foto do local.
+              Atualize o status após analisar as
+              informações da solicitação.
             </p>
           </div>
 
           <div className="detalhes-acoes">
-
             <button
               type="button"
               className="detalhes-btn detalhes-analise"
               onClick={handleAnalise}
+              disabled={
+                atualizando ||
+                solicitacao.status ===
+                  "EM_ANALISE"
+              }
             >
-              Colocar em análise
+              {atualizando
+                ? "Atualizando..."
+                : "Colocar em análise"}
             </button>
 
             <button
               type="button"
               className="detalhes-btn detalhes-recusar"
               onClick={handleRecusar}
+              disabled={
+                atualizando ||
+                solicitacao.status === "RECUSADO"
+              }
             >
               Recusar
             </button>
@@ -248,14 +373,15 @@ function DetalhesSolicitacao() {
               type="button"
               className="detalhes-btn detalhes-aprovar"
               onClick={handleAprovar}
+              disabled={
+                atualizando ||
+                solicitacao.status === "APROVADO"
+              }
             >
               Aprovar solicitação
             </button>
-
           </div>
-
         </section>
-
       </div>
     </main>
   );

@@ -30,7 +30,7 @@ function Login() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email: email.trim(),
+            email,
             senha,
           }),
         }
@@ -79,13 +79,18 @@ function Login() {
         new Event("usuarioLogadoAtualizado")
       );
 
-      if (usuario.tipo === "GESTOR") {
+      if (resposta.tipo === "BOSS") {
+        navigate("/admin");
+      } else if (resposta.tipo === "GESTOR") {
         navigate("/gestor");
       } else {
         navigate("/perfil");
       }
     } catch (error) {
-      console.error("Erro ao realizar login:", error);
+      console.error(
+        "Erro ao realizar login:",
+        error
+      );
 
       alert(
         error.message ||

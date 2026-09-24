@@ -1,52 +1,149 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import API_URL from "../services/api";
 import "./Gestor.css";
 
 function Gestor() {
-  const solicitacoes = [
-    {
-      protocolo: "RZ-2026-001",
-      nome: "João da Silva",
-      bairro: "Boa Vista",
-      data: "10/09/2026",
-      status: "PENDENTE",
-    },
-    {
-      protocolo: "RZ-2026-002",
-      nome: "Maria Souza",
-      bairro: "Casa Forte",
-      data: "09/09/2026",
-      status: "EM_ANALISE",
-    },
-    {
-      protocolo: "RZ-2026-003",
-      nome: "Carlos Lima",
-      bairro: "Madalena",
-      data: "08/09/2026",
-      status: "APROVADO",
-    },
-  ];
+  const navigate = useNavigate();
+
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
+  const [solicitacoes, setSolicitacoes] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    const usuarioSalvo =
+      localStorage.getItem("usuarioLogado") ||
+      sessionStorage.getItem("usuarioLogado");
+
+    if (!usuarioSalvo) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const usuario = JSON.parse(usuarioSalvo);
+
+      if (usuario.tipo !== "GESTOR" && usuario.tipo !== "BOSS") {
+        navigate("/perfil");
+        return;
+      }
+
+      setUsuarioLogado(usuario);
+    } catch {
+      localStorage.removeItem("usuarioLogado");
+      sessionStorage.removeItem("usuarioLogado");
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    async function carregarSolicitacoes() {
+      try {
+        setCarregando(true);
+        setErro("");
+
+        const resposta = await fetch(
+           `${API_URL}/api/solicitacoes/gestor/${usuarioLogado.id}`
+        );
+
+        if (!resposta.ok) {
+          throw new Error(
+            "Não foi possível carregar as solicitações."
+          );
+        }
+
+        const dados = await resposta.json();
+
+        setSolicitacoes(
+          Array.isArray(dados) ? dados : []
+        );
+      } catch (error) {
+        console.error(
+          "Erro ao carregar solicitações:",
+          error
+        );
+
+        setErro(
+          "Não foi possível carregar as solicitações."
+        );
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    if (usuarioLogado) {
+      carregarSolicitacoes();
+    }
+  }, [usuarioLogado]);
 
   const formatarStatus = (status) => {
     switch (status) {
       case "PENDENTE":
         return "Pendente";
+
       case "EM_ANALISE":
         return "Em análise";
+
+      case "VISITA_AGENDADA":
+        return "Visita agendada";
+
       case "APROVADO":
         return "Aprovado";
+
       case "RECUSADO":
         return "Recusado";
+
       case "CONCLUIDO":
         return "Concluído";
+
       default:
-        return status;
+        return status || "Pendente";
     }
   };
+
+  const formatarData = (data) => {
+    if (!data) {
+      return "Não informada";
+    }
+
+    const dataFormatada = new Date(data);
+
+    if (Number.isNaN(dataFormatada.getTime())) {
+      return data;
+    }
+
+    return dataFormatada.toLocaleDateString(
+      "pt-BR"
+    );
+  };
+
+  const totalSolicitacoes = solicitacoes.length;
+
+  const totalPendentes = solicitacoes.filter(
+    (solicitacao) =>
+      solicitacao.status === "PENDENTE"
+  ).length;
+
+  const totalEmAnalise = solicitacoes.filter(
+    (solicitacao) =>
+      solicitacao.status === "EM_ANALISE" ||
+      solicitacao.status === "VISITA_AGENDADA"
+  ).length;
+
+  const totalAprovadas = solicitacoes.filter(
+    (solicitacao) =>
+      solicitacao.status === "APROVADO" ||
+      solicitacao.status === "CONCLUIDO"
+  ).length;
+
+  if (!usuarioLogado) {
+    return null;
+  }
 
   return (
     <main className="gestor-page">
       <div className="gestor-container">
-
         <section className="gestor-topo">
           <div>
             <span className="gestor-label">
@@ -56,8 +153,8 @@ function Gestor() {
             <h1>Painel do Gestor</h1>
 
             <p>
-              Acompanhe e analise as solicitações de plantio enviadas pelos
-              cidadãos.
+              Acompanhe e analise as solicitações de
+              plantio enviadas pelos cidadãos.
             </p>
           </div>
 
@@ -67,109 +164,178 @@ function Gestor() {
             </div>
 
             <div>
-              <strong>Samuel</strong>
-              <span>Gestor</span>
+              <strong>
+                {usuarioLogado.nomeCompleto ||
+                  "Gestor"}
+              </strong>
+
+              <span>
+                {usuarioLogado.tipo === "BOSS"
+                  ? "BOSS"
+                  : "Gestor"}
+              </span>
             </div>
           </div>
         </section>
 
         <section className="gestor-resumo">
-
           <div className="gestor-resumo-card">
             <span>Total de solicitações</span>
-            <strong>12</strong>
+
+            <strong>
+              {carregando
+                ? "..."
+                : totalSolicitacoes}
+            </strong>
           </div>
 
           <div className="gestor-resumo-card">
             <span>Pendentes</span>
-            <strong>5</strong>
+
+            <strong>
+              {carregando
+                ? "..."
+                : totalPendentes}
+            </strong>
           </div>
 
           <div className="gestor-resumo-card">
             <span>Em análise</span>
-            <strong>3</strong>
+
+            <strong>
+              {carregando
+                ? "..."
+                : totalEmAnalise}
+            </strong>
           </div>
 
           <div className="gestor-resumo-card">
             <span>Aprovadas</span>
-            <strong>4</strong>
-          </div>
 
+            <strong>
+              {carregando
+                ? "..."
+                : totalAprovadas}
+            </strong>
+          </div>
         </section>
 
         <section className="gestor-lista-card">
-
           <div className="gestor-lista-header">
             <div>
               <h2>Solicitações recentes</h2>
 
               <p>
-                Clique em uma solicitação para visualizar todos os detalhes.
+                Clique em uma solicitação para
+                visualizar todos os detalhes.
               </p>
             </div>
           </div>
 
-          <div className="gestor-tabela-wrapper">
+          {carregando && (
+            <p
+              style={{
+                color: "#687168",
+                padding: "20px 0",
+              }}
+            >
+              Carregando solicitações...
+            </p>
+          )}
 
-            <table className="gestor-tabela">
-              <thead>
-                <tr>
-                  <th>Protocolo</th>
-                  <th>Solicitante</th>
-                  <th>Bairro</th>
-                  <th>Data</th>
-                  <th>Status</th>
-                  <th></th>
-                </tr>
-              </thead>
+          {!carregando && erro && (
+            <p
+              style={{
+                color: "#a64b4b",
+                padding: "20px 0",
+              }}
+            >
+              {erro}
+            </p>
+          )}
 
-              <tbody>
-                {solicitacoes.map((solicitacao) => (
-                  <tr key={solicitacao.protocolo}>
+          {!carregando &&
+            !erro &&
+            solicitacoes.length === 0 && (
+              <p
+                style={{
+                  color: "#687168",
+                  padding: "20px 0",
+                }}
+              >
+                Nenhuma solicitação encontrada.
+              </p>
+            )}
 
-                    <td>
-                      <strong className="gestor-protocolo">
-                        {solicitacao.protocolo}
-                      </strong>
-                    </td>
+          {!carregando &&
+            !erro &&
+            solicitacoes.length > 0 && (
+              <div className="gestor-tabela-wrapper">
+                <table className="gestor-tabela">
+                  <thead>
+                    <tr>
+                      <th>Protocolo</th>
+                      <th>Solicitante</th>
+                      <th>Bairro</th>
+                      <th>Data</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
 
-                    <td>
-                      {solicitacao.nome}
-                    </td>
+                  <tbody>
+                    {solicitacoes.map(
+                      (solicitacao) => (
+                        <tr key={solicitacao.id}>
+                          <td>
+                            <strong className="gestor-protocolo">
+                              {solicitacao.protocolo}
+                            </strong>
+                          </td>
 
-                    <td>
-                      {solicitacao.bairro}
-                    </td>
+                          <td>
+                            {solicitacao.nomeCompleto}
+                          </td>
 
-                    <td>
-                      {solicitacao.data}
-                    </td>
+                          <td>
+                            {solicitacao.bairro}
+                          </td>
 
-                    <td>
-                      <span
-                        className={`gestor-status status-${solicitacao.status.toLowerCase()}`}
-                      >
-                        {formatarStatus(solicitacao.status)}
-                      </span>
-                    </td>
+                          <td>
+                            {formatarData(
+                              solicitacao.dataSolicitacao
+                            )}
+                          </td>
 
-                    <td>
-                      <Link
-                        to={`/gestor/solicitacao/${solicitacao.protocolo}`}
-                        className="gestor-ver"
-                      >
-                        Ver detalhes
-                      </Link>
-                    </td>
+                          <td>
+                            <span
+                              className={`gestor-status status-${(
+                                solicitacao.status ||
+                                "PENDENTE"
+                              ).toLowerCase()}`}
+                            >
+                              {formatarStatus(
+                                solicitacao.status
+                              )}
+                            </span>
+                          </td>
 
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-          </div>
+                          <td>
+                            <Link
+                              to={`/gestor/solicitacao/${solicitacao.id}`}
+                              className="gestor-ver"
+                            >
+                              Ver detalhes
+                            </Link>
+                          </td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
         </section>
-
       </div>
     </main>
   );

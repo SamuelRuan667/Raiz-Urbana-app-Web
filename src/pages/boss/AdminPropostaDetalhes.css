@@ -1,0 +1,369 @@
+.admin-detalhes-page {
+  min-height: 650px;
+  padding: 55px 20px 80px;
+  background-color: #fafbf7;
+  box-sizing: border-box;
+}
+
+.admin-detalhes-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.admin-detalhes-voltar {
+  margin-bottom: 25px;
+}
+
+.admin-detalhes-voltar a {
+  color: #687168;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.admin-detalhes-voltar a:hover {
+  color: #355f3c;
+}
+
+.admin-detalhes-topo {
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+}
+
+.admin-detalhes-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #b86b32;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.admin-detalhes-topo h1 {
+  margin: 0 0 8px;
+  color: #20352a;
+  font-size: 32px;
+}
+
+.admin-detalhes-topo p {
+  margin: 0;
+  color: #687168;
+  font-size: 14px;
+}
+
+.admin-detalhes-status {
+  padding: 9px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pendente {
+  background-color: #faf1e9;
+  color: #b86b32;
+}
+
+.status-aprovada {
+  background-color: #e8f1e4;
+  color: #355f3c;
+}
+
+.status-recusada {
+  background-color: #f8eaea;
+  color: #a64b4b;
+}
+
+.admin-detalhes-card {
+  margin-bottom: 22px;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 5px 20px rgba(32, 53, 42, 0.06);
+  box-sizing: border-box;
+}
+
+.admin-detalhes-card h2 {
+  margin: 0 0 22px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid #edf0eb;
+  color: #20352a;
+  font-size: 19px;
+}
+
+.admin-detalhes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.admin-detalhes-dado {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.admin-detalhes-dado span,
+.admin-detalhes-descricao span {
+  color: #8a938b;
+  font-size: 11px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.admin-detalhes-dado strong {
+  color: #20352a;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.admin-detalhes-largo {
+  grid-column: 1 / -1;
+}
+
+.admin-detalhes-proposta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.admin-detalhes-descricao {
+  grid-column: 1 / -1;
+}
+
+.admin-detalhes-descricao p {
+  margin: 8px 0 0;
+  padding: 16px;
+  background-color: #fafbf7;
+  border-radius: 8px;
+  color: #4d5b51;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.admin-analise-card {
+  border-top: 4px solid #b86b32;
+}
+
+.admin-analise-descricao {
+  margin: 0 0 22px;
+  color: #687168;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.admin-analise-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.admin-aprovar,
+.admin-recusar,
+.admin-cancelar-recusa,
+.admin-confirmar-recusa {
+  min-height: 45px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.admin-aprovar {
+  border: none;
+  background-color: #355f3c;
+  color: #ffffff;
+}
+
+.admin-aprovar:hover {
+  background-color: #294b30;
+  transform: translateY(-2px);
+}
+
+.admin-recusar {
+  border: 1px solid #b85c5c;
+  background-color: #ffffff;
+  color: #a64b4b;
+}
+
+.admin-recusar:hover {
+  background-color: #f8eaea;
+}
+
+.admin-recusa-container {
+  padding: 20px;
+  background-color: #fffafa;
+  border: 1px solid #f0dada;
+  border-radius: 10px;
+}
+
+.admin-recusa-container label {
+  display: block;
+  margin-bottom: 8px;
+  color: #20352a;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.admin-recusa-container textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 13px;
+  border: 1px solid #d5ddd4;
+  border-radius: 8px;
+  outline: none;
+  background-color: #ffffff;
+  color: #20352a;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.admin-recusa-container textarea:focus {
+  border-color: #a64b4b;
+  box-shadow: 0 0 0 3px rgba(166, 75, 75, 0.08);
+}
+
+.admin-recusa-acoes {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.admin-cancelar-recusa {
+  border: 1px solid #d5ddd4;
+  background-color: #ffffff;
+  color: #687168;
+}
+
+.admin-confirmar-recusa {
+  border: none;
+  background-color: #a64b4b;
+  color: #ffffff;
+}
+
+.admin-confirmar-recusa:hover {
+  background-color: #8d3f3f;
+}
+
+.admin-aprovar:disabled,
+.admin-recusar:disabled,
+.admin-cancelar-recusa:disabled,
+.admin-confirmar-recusa:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.admin-resultado {
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  border-radius: 12px;
+}
+
+.admin-resultado > div {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.admin-resultado section {
+  flex: 1;
+}
+
+.admin-resultado strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
+.admin-resultado p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.admin-resultado-aprovado {
+  background-color: #e8f1e4;
+  color: #355f3c;
+}
+
+.admin-resultado-aprovado > div {
+  background-color: #ffffff;
+}
+
+.admin-resultado-recusado {
+  background-color: #f8eaea;
+  color: #8d3f3f;
+}
+
+.admin-resultado-recusado > div {
+  background-color: #ffffff;
+}
+
+@media (max-width: 650px) {
+  .admin-detalhes-page {
+    padding: 40px 15px 60px;
+  }
+
+  .admin-detalhes-topo {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-detalhes-topo h1 {
+    font-size: 27px;
+  }
+
+  .admin-detalhes-card {
+    padding: 22px;
+  }
+
+  .admin-detalhes-grid,
+  .admin-detalhes-proposta {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-detalhes-largo,
+  .admin-detalhes-descricao {
+    grid-column: auto;
+  }
+
+  .admin-analise-acoes {
+    flex-direction: column-reverse;
+  }
+
+  .admin-aprovar,
+  .admin-recusar {
+    width: 100%;
+  }
+
+  .admin-recusa-acoes {
+    flex-direction: column-reverse;
+  }
+
+  .admin-cancelar-recusa,
+  .admin-confirmar-recusa {
+    width: 100%;
+  }
+}
