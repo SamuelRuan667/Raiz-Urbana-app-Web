@@ -17,6 +17,7 @@ import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Perfil from "./pages/Perfil";
 import EditarPerfil from "./pages/EditarPerfil";
+import DetalhesMinhaSolicitacao from "./pages/DetalhesMinhaSolicitacao";
 import Gestor from "./pages/Gestor";
 import DetalhesSolicitacao from "./pages/DetalhesSolicitacao";
 import RecuperarSenha from "./pages/RecuperarSenha";
@@ -108,6 +109,17 @@ function App() {
                   tiposPermitidos={["USUARIO"]}
                 >
                   <EditarPerfil />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/perfil/solicitacao/:id"
+              element={
+                <ProtectedRoute
+                  tiposPermitidos={["USUARIO"]}
+                >
+                  <DetalhesMinhaSolicitacao />
                 </ProtectedRoute>
               }
             />

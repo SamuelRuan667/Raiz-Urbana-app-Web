@@ -16,7 +16,17 @@ function Perfil() {
         sessionStorage.getItem("usuarioLogado") ||
         localStorage.getItem("usuarioLogado");
 
-      if (!usuarioSalvo) {
+      const token =
+        sessionStorage.getItem("token") ||
+        localStorage.getItem("token");
+
+      if (!usuarioSalvo || !token) {
+        sessionStorage.removeItem("usuarioLogado");
+        sessionStorage.removeItem("token");
+
+        localStorage.removeItem("usuarioLogado");
+        localStorage.removeItem("token");
+
         navigate("/login");
         return;
       }
@@ -26,21 +36,41 @@ function Perfil() {
 
         const usuarioLogado = JSON.parse(usuarioSalvo);
 
-        if (usuarioLogado.tipo === "GESTOR") {
+        if (
+          usuarioLogado.tipo === "GESTOR" ||
+          usuarioLogado.tipo === "BOSS"
+        ) {
           navigate("/gestor");
           return;
         }
 
         setUsuario(usuarioLogado);
 
+        // ==========================================
+        // CARREGAR DADOS COMPLETOS DO USUÁRIO
+        // ==========================================
+
         try {
           const respostaUsuario = await fetch(
-            `${API_URL}/api/usuarios/${usuarioLogado.id}`
+            `${API_URL}/api/usuarios/${usuarioLogado.id}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
 
           if (respostaUsuario.ok) {
-            const dadosUsuario = await respostaUsuario.json();
+            const dadosUsuario =
+              await respostaUsuario.json();
+
             setUsuario(dadosUsuario);
+          } else {
+            console.error(
+              "Erro ao carregar usuário. Status:",
+              respostaUsuario.status
+            );
           }
         } catch (erro) {
           console.error(
@@ -49,17 +79,36 @@ function Perfil() {
           );
         }
 
+        // ==========================================
+        // CARREGAR SOLICITAÇÕES DO USUÁRIO
+        // ==========================================
+
         try {
           const respostaSolicitacoes = await fetch(
-            `${API_URL}/api/solicitacoes/usuario/${usuarioLogado.id}`
+            `${API_URL}/api/solicitacoes/usuario/${usuarioLogado.id}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
           );
 
           if (respostaSolicitacoes.ok) {
             const dadosSolicitacoes =
               await respostaSolicitacoes.json();
 
-            setSolicitacoes(dadosSolicitacoes);
+            setSolicitacoes(
+              Array.isArray(dadosSolicitacoes)
+                ? dadosSolicitacoes
+                : []
+            );
           } else {
+            console.error(
+              "Erro ao carregar solicitações. Status:",
+              respostaSolicitacoes.status
+            );
+
             setSolicitacoes([]);
           }
         } catch (erro) {
@@ -77,7 +126,10 @@ function Perfil() {
         );
 
         sessionStorage.removeItem("usuarioLogado");
+        sessionStorage.removeItem("token");
+
         localStorage.removeItem("usuarioLogado");
+        localStorage.removeItem("token");
 
         navigate("/login");
       } finally {
@@ -88,9 +140,16 @@ function Perfil() {
     carregarPerfil();
   }, [navigate]);
 
+  // ==========================================
+  // SAIR DA CONTA
+  // ==========================================
+
   const sairDaConta = () => {
     sessionStorage.removeItem("usuarioLogado");
+    sessionStorage.removeItem("token");
+
     localStorage.removeItem("usuarioLogado");
+    localStorage.removeItem("token");
 
     window.dispatchEvent(
       new Event("usuarioLogadoAtualizado")
@@ -98,6 +157,10 @@ function Perfil() {
 
     navigate("/login");
   };
+
+  // ==========================================
+  // RESUMO DAS SOLICITAÇÕES
+  // ==========================================
 
   const totalSolicitacoes = solicitacoes.length;
 
@@ -114,6 +177,10 @@ function Perfil() {
       solicitacao.status === "APROVADO"
   ).length;
 
+  // ==========================================
+  // TRADUZIR STATUS
+  // ==========================================
+
   const traduzirStatus = (status) => {
     switch (status) {
       case "PENDENTE":
@@ -125,31 +192,31 @@ function Perfil() {
       case "EM_ANALISE":
         return {
           texto: "Em análise",
-          classe: "status-pendente",
+          classe: "status-em_analise",
         };
 
       case "VISITA_AGENDADA":
         return {
           texto: "Visita agendada",
-          classe: "status-pendente",
+          classe: "status-visita_agendada",
         };
 
       case "APROVADO":
         return {
           texto: "Aprovado",
-          classe: "status-concluido",
+          classe: "status-aprovado",
+        };
+
+      case "RECUSADO":
+        return {
+          texto: "Recusado",
+          classe: "status-recusado",
         };
 
       case "CONCLUIDO":
         return {
           texto: "Concluído",
           classe: "status-concluido",
-        };
-
-      case "RECUSADO":
-        return {
-          texto: "Recusado",
-          classe: "status-pendente",
         };
 
       default:
@@ -159,6 +226,10 @@ function Perfil() {
         };
     }
   };
+
+  // ==========================================
+  // FORMATAR ENDEREÇO
+  // ==========================================
 
   const formatarEndereco = () => {
     if (!usuario) {
@@ -180,6 +251,10 @@ function Perfil() {
     return endereco.join(", ");
   };
 
+  // ==========================================
+  // CARREGAMENTO
+  // ==========================================
+
   if (carregando) {
     return (
       <main className="perfil-page">
@@ -194,9 +269,17 @@ function Perfil() {
     return null;
   }
 
+  // ==========================================
+  // PÁGINA
+  // ==========================================
+
   return (
     <main className="perfil-page">
       <div className="perfil-container">
+
+        {/* =====================================
+            PERFIL PRINCIPAL
+        ====================================== */}
 
         <section className="perfil-card perfil-principal">
           <div className="perfil-avatar">
@@ -234,6 +317,10 @@ function Perfil() {
             </button>
           </div>
         </section>
+
+        {/* =====================================
+            DADOS PESSOAIS
+        ====================================== */}
 
         <section className="perfil-dados-card">
           <div className="perfil-section-header">
@@ -285,6 +372,10 @@ function Perfil() {
           </div>
         </section>
 
+        {/* =====================================
+            RESUMO
+        ====================================== */}
+
         <section className="perfil-resumo">
 
           <div className="perfil-resumo-card">
@@ -331,6 +422,10 @@ function Perfil() {
 
         </section>
 
+        {/* =====================================
+            MINHAS SOLICITAÇÕES
+        ====================================== */}
+
         <section className="perfil-solicitacoes">
           <div className="perfil-section-header">
             <h2>Minhas solicitações</h2>
@@ -356,7 +451,7 @@ function Perfil() {
                 key={item.id || item.protocolo}
                 className="perfil-solicitacao-item"
               >
-                <div>
+                <div className="perfil-solicitacao-info">
                   <span className="solicitacao-protocolo">
                     {item.protocolo}
                   </span>
@@ -374,11 +469,20 @@ function Perfil() {
                   </p>
                 </div>
 
-                <span
-                  className={`status ${statusInfo.classe}`}
-                >
-                  {statusInfo.texto}
-                </span>
+                <div className="perfil-solicitacao-acoes">
+                  <span
+                    className={`status ${statusInfo.classe}`}
+                  >
+                    {statusInfo.texto}
+                  </span>
+
+                  <Link
+                    to={`/perfil/solicitacao/${item.id}`}
+                    className="perfil-ver-detalhes"
+                  >
+                    Ver detalhes
+                  </Link>
+                </div>
               </div>
             );
           })}

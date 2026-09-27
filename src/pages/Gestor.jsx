@@ -7,35 +7,96 @@ function Gestor() {
   const navigate = useNavigate();
 
   const [usuarioLogado, setUsuarioLogado] = useState(null);
+  const [token, setToken] = useState(null);
   const [solicitacoes, setSolicitacoes] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
+  // =========================
+  // CARREGAR AUTENTICAÇÃO
+  // =========================
+
   useEffect(() => {
-    const usuarioSalvo =
-      localStorage.getItem("usuarioLogado") ||
+    const usuarioSession =
       sessionStorage.getItem("usuarioLogado");
 
-    if (!usuarioSalvo) {
-      navigate("/login");
+    const tokenSession =
+      sessionStorage.getItem("token");
+
+    const usuarioLocal =
+      localStorage.getItem("usuarioLogado");
+
+    const tokenLocal =
+      localStorage.getItem("token");
+
+    let usuarioSalvo = null;
+    let tokenSalvo = null;
+
+    if (usuarioSession && tokenSession) {
+      usuarioSalvo = usuarioSession;
+      tokenSalvo = tokenSession;
+    } else if (usuarioLocal && tokenLocal) {
+      usuarioSalvo = usuarioLocal;
+      tokenSalvo = tokenLocal;
+    }
+
+    if (!usuarioSalvo || !tokenSalvo) {
+      sessionStorage.removeItem("usuarioLogado");
+      sessionStorage.removeItem("token");
+
+      localStorage.removeItem("usuarioLogado");
+      localStorage.removeItem("token");
+
+      navigate("/login", {
+        replace: true,
+      });
+
       return;
     }
 
     try {
       const usuario = JSON.parse(usuarioSalvo);
 
-      if (usuario.tipo !== "GESTOR" && usuario.tipo !== "BOSS") {
-        navigate("/perfil");
+      if (
+        usuario.tipo !== "GESTOR" &&
+        usuario.tipo !== "BOSS"
+      ) {
+        navigate("/perfil", {
+          replace: true,
+        });
+
         return;
       }
 
+      if (!usuario.id) {
+        throw new Error(
+          "Usuário autenticado sem ID."
+        );
+      }
+
       setUsuarioLogado(usuario);
-    } catch {
-      localStorage.removeItem("usuarioLogado");
+      setToken(tokenSalvo);
+    } catch (error) {
+      console.error(
+        "Erro ao recuperar usuário logado:",
+        error
+      );
+
       sessionStorage.removeItem("usuarioLogado");
-      navigate("/login");
+      sessionStorage.removeItem("token");
+
+      localStorage.removeItem("usuarioLogado");
+      localStorage.removeItem("token");
+
+      navigate("/login", {
+        replace: true,
+      });
     }
   }, [navigate]);
+
+  // =========================
+  // CARREGAR SOLICITAÇÕES
+  // =========================
 
   useEffect(() => {
     async function carregarSolicitacoes() {
@@ -44,13 +105,42 @@ function Gestor() {
         setErro("");
 
         const resposta = await fetch(
-           `${API_URL}/api/solicitacoes/gestor/${usuarioLogado.id}`
+          `${API_URL}/api/solicitacoes/gestor/${usuarioLogado.id}`,
+          {
+            method: "GET",
+
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
-        if (!resposta.ok) {
+        if (
+          resposta.status === 401 ||
+          resposta.status === 403
+        ) {
           throw new Error(
-            "Não foi possível carregar as solicitações."
+            "Você não possui permissão para acessar as solicitações."
           );
+        }
+
+        if (!resposta.ok) {
+          let mensagem =
+            "Não foi possível carregar as solicitações.";
+
+          try {
+            const dadosErro = await resposta.json();
+
+            mensagem =
+              dadosErro?.message ||
+              dadosErro?.mensagem ||
+              mensagem;
+          } catch {
+            // Mantém a mensagem padrão.
+          }
+
+          throw new Error(mensagem);
         }
 
         const dados = await resposta.json();
@@ -64,18 +154,45 @@ function Gestor() {
           error
         );
 
+        setSolicitacoes([]);
+
         setErro(
-          "Não foi possível carregar as solicitações."
+          error.message ||
+            "Não foi possível carregar as solicitações."
         );
       } finally {
         setCarregando(false);
       }
     }
 
-    if (usuarioLogado) {
+    if (usuarioLogado && token) {
       carregarSolicitacoes();
     }
-  }, [usuarioLogado]);
+  }, [usuarioLogado, token]);
+
+  // =========================
+  // SAIR DA CONTA
+  // =========================
+
+  const sairDaConta = () => {
+    sessionStorage.removeItem("usuarioLogado");
+    sessionStorage.removeItem("token");
+
+    localStorage.removeItem("usuarioLogado");
+    localStorage.removeItem("token");
+
+    window.dispatchEvent(
+      new Event("usuarioLogadoAtualizado")
+    );
+
+    navigate("/login", {
+      replace: true,
+    });
+  };
+
+  // =========================
+  // FORMATAR STATUS
+  // =========================
 
   const formatarStatus = (status) => {
     switch (status) {
@@ -102,6 +219,10 @@ function Gestor() {
     }
   };
 
+  // =========================
+  // FORMATAR DATA
+  // =========================
+
   const formatarData = (data) => {
     if (!data) {
       return "Não informada";
@@ -109,7 +230,11 @@ function Gestor() {
 
     const dataFormatada = new Date(data);
 
-    if (Number.isNaN(dataFormatada.getTime())) {
+    if (
+      Number.isNaN(
+        dataFormatada.getTime()
+      )
+    ) {
       return data;
     }
 
@@ -118,32 +243,46 @@ function Gestor() {
     );
   };
 
-  const totalSolicitacoes = solicitacoes.length;
+  // =========================
+  // CONTADORES
+  // =========================
 
-  const totalPendentes = solicitacoes.filter(
-    (solicitacao) =>
-      solicitacao.status === "PENDENTE"
-  ).length;
+  const totalSolicitacoes =
+    solicitacoes.length;
 
-  const totalEmAnalise = solicitacoes.filter(
-    (solicitacao) =>
-      solicitacao.status === "EM_ANALISE" ||
-      solicitacao.status === "VISITA_AGENDADA"
-  ).length;
+  const totalPendentes =
+    solicitacoes.filter(
+      (solicitacao) =>
+        solicitacao.status === "PENDENTE"
+    ).length;
 
-  const totalAprovadas = solicitacoes.filter(
-    (solicitacao) =>
-      solicitacao.status === "APROVADO" ||
-      solicitacao.status === "CONCLUIDO"
-  ).length;
+  const totalEmAnalise =
+    solicitacoes.filter(
+      (solicitacao) =>
+        solicitacao.status === "EM_ANALISE" ||
+        solicitacao.status ===
+          "VISITA_AGENDADA"
+    ).length;
 
-  if (!usuarioLogado) {
+  const totalAprovadas =
+    solicitacoes.filter(
+      (solicitacao) =>
+        solicitacao.status === "APROVADO" ||
+        solicitacao.status === "CONCLUIDO"
+    ).length;
+
+  if (!usuarioLogado || !token) {
     return null;
   }
 
   return (
     <main className="gestor-page">
       <div className="gestor-container">
+
+        {/* =========================
+            TOPO
+        ========================== */}
+
         <section className="gestor-topo">
           <div>
             <span className="gestor-label">
@@ -158,29 +297,45 @@ function Gestor() {
             </p>
           </div>
 
-          <div className="gestor-perfil">
-            <div className="gestor-avatar">
-              👤
+          <div className="gestor-topo-acoes">
+            <div className="gestor-perfil">
+              <div className="gestor-avatar">
+                👤
+              </div>
+
+              <div>
+                <strong>
+                  {usuarioLogado.nomeCompleto ||
+                    "Gestor"}
+                </strong>
+
+                <span>
+                  {usuarioLogado.tipo === "BOSS"
+                    ? "BOSS"
+                    : "Gestor"}
+                </span>
+              </div>
             </div>
 
-            <div>
-              <strong>
-                {usuarioLogado.nomeCompleto ||
-                  "Gestor"}
-              </strong>
-
-              <span>
-                {usuarioLogado.tipo === "BOSS"
-                  ? "BOSS"
-                  : "Gestor"}
-              </span>
-            </div>
+            <button
+              type="button"
+              className="gestor-sair"
+              onClick={sairDaConta}
+            >
+              Sair da conta
+            </button>
           </div>
         </section>
 
+        {/* =========================
+            RESUMO
+        ========================== */}
+
         <section className="gestor-resumo">
           <div className="gestor-resumo-card">
-            <span>Total de solicitações</span>
+            <span>
+              Total de solicitações
+            </span>
 
             <strong>
               {carregando
@@ -220,10 +375,16 @@ function Gestor() {
           </div>
         </section>
 
+        {/* =========================
+            LISTA DE SOLICITAÇÕES
+        ========================== */}
+
         <section className="gestor-lista-card">
           <div className="gestor-lista-header">
             <div>
-              <h2>Solicitações recentes</h2>
+              <h2>
+                Solicitações recentes
+              </h2>
 
               <p>
                 Clique em uma solicitação para
@@ -286,19 +447,29 @@ function Gestor() {
                   <tbody>
                     {solicitacoes.map(
                       (solicitacao) => (
-                        <tr key={solicitacao.id}>
+                        <tr
+                          key={
+                            solicitacao.id
+                          }
+                        >
                           <td>
                             <strong className="gestor-protocolo">
-                              {solicitacao.protocolo}
+                              {
+                                solicitacao.protocolo
+                              }
                             </strong>
                           </td>
 
                           <td>
-                            {solicitacao.nomeCompleto}
+                            {
+                              solicitacao.nomeCompleto
+                            }
                           </td>
 
                           <td>
-                            {solicitacao.bairro}
+                            {
+                              solicitacao.bairro
+                            }
                           </td>
 
                           <td>

@@ -19,7 +19,9 @@
   box-shadow: 0 8px 30px rgba(32, 53, 42, 0.07);
 }
 
-/* PERFIL PRINCIPAL */
+/* =========================
+   PERFIL PRINCIPAL
+========================= */
 
 .perfil-principal {
   display: flex;
@@ -68,6 +70,17 @@
   line-height: 1.6;
 }
 
+/* =========================
+   AÇÕES DO PERFIL
+========================= */
+
+.perfil-acoes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
 .perfil-editar {
   display: inline-flex;
   align-items: center;
@@ -99,7 +112,27 @@
   text-decoration: none !important;
 }
 
-/* DADOS */
+.perfil-sair {
+  padding: 11px 20px;
+  border: 1px solid #b86b32;
+  border-radius: 8px;
+  background: transparent;
+  color: #b86b32;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.perfil-sair:hover {
+  background: #b86b32;
+  color: #ffffff;
+}
+
+/* =========================
+   DADOS PESSOAIS
+========================= */
 
 .perfil-dados-card {
   padding: 32px;
@@ -146,7 +179,9 @@
   grid-column: 1 / -1;
 }
 
-/* RESUMO */
+/* =========================
+   RESUMO
+========================= */
 
 .perfil-resumo {
   display: grid;
@@ -179,7 +214,9 @@
   font-size: 14px;
 }
 
-/* SOLICITAÇÕES */
+/* =========================
+   MINHAS SOLICITAÇÕES
+========================= */
 
 .perfil-solicitacoes {
   padding: 32px;
@@ -216,24 +253,110 @@
   font-size: 14px;
 }
 
+/* =========================
+   STATUS DAS SOLICITAÇÕES
+========================= */
+
 .status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 7px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
 }
+
+/* PENDENTE */
 
 .status-pendente {
   background: #fff1df;
   color: #b86b32;
 }
 
+/* EM ANÁLISE */
+
+.status-em_analise {
+  background: #eef2e9;
+  color: #59635c;
+}
+
+/* VISITA AGENDADA */
+
+.status-visita_agendada {
+  background: #e9f1f8;
+  color: #3f6583;
+}
+
+/* APROVADO */
+
+.status-aprovado {
+  background: #e8f1e4;
+  color: #355f3c;
+}
+
+/* RECUSADO */
+
+.status-recusado {
+  background: #fbe9e7;
+  color: #9d4038;
+}
+
+/* CONCLUÍDO */
+
 .status-concluido {
   background: #e8f1e4;
   color: #355f3c;
 }
 
-/* RESPONSIVO */
+/* =========================
+   BOTÃO VER DETALHES
+========================= */
+
+.perfil-solicitacao-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.perfil-ver-detalhes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 15px;
+  border: 1px solid #355f3c;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #355f3c;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.perfil-ver-detalhes:link,
+.perfil-ver-detalhes:visited,
+.perfil-ver-detalhes:active {
+  color: #355f3c;
+  text-decoration: none !important;
+}
+
+.perfil-ver-detalhes:hover {
+  background: #355f3c;
+  color: #ffffff;
+  text-decoration: none !important;
+}
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
 
 @media (max-width: 750px) {
   .perfil-page {
@@ -245,8 +368,16 @@
     align-items: flex-start;
   }
 
-  .perfil-editar {
+  .perfil-acoes {
     width: 100%;
+    margin-left: 0;
+    flex-direction: column;
+  }
+
+  .perfil-editar,
+  .perfil-sair {
+    width: 100%;
+    text-align: center;
   }
 
   .perfil-dados-grid,
@@ -262,42 +393,20 @@
     align-items: flex-start;
     flex-direction: column;
   }
-}
 
-.perfil-acoes {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: auto;
-}
-
-.perfil-sair {
-  padding: 11px 20px;
-  border: 1px solid #b86b32;
-  border-radius: 8px;
-  background: transparent;
-  color: #b86b32;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.perfil-sair:hover {
-  background: #b86b32;
-  color: #ffffff;
-}
-
-@media (max-width: 700px) {
-  .perfil-acoes {
+  .perfil-solicitacao-acoes {
     width: 100%;
-    margin-left: 0;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 500px) {
+  .perfil-solicitacao-acoes {
+    align-items: stretch;
     flex-direction: column;
   }
 
-  .perfil-editar,
-  .perfil-sair {
+  .perfil-ver-detalhes {
     width: 100%;
-    text-align: center;
   }
 }

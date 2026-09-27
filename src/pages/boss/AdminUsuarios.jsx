@@ -1,57 +1,237 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import API_URL from "../../services/api";
 import "./AdminUsuarios.css";
 
 function AdminUsuarios() {
+  const navigate = useNavigate();
+
   const [busca, setBusca] = useState("");
+  const [usuarios, setUsuarios] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
 
-  const [usuarios] = useState([
-    {
-      id: 1,
-      nomeCompleto: "Usuário Exemplo",
-      cpf: "000.000.000-00",
-      email: "usuario@exemplo.com",
-      telefone: "(81) 99999-9999",
-      bairro: "Boa Viagem",
-      cidade: "Recife",
-      estado: "PE",
-    },
-    {
-      id: 2,
-      nomeCompleto: "Usuário Teste",
-      cpf: "111.111.111-11",
-      email: "teste@exemplo.com",
-      telefone: "(81) 98888-8888",
-      bairro: "Casa Amarela",
-      cidade: "Recife",
-      estado: "PE",
-    },
-    {
-      id: 3,
-      nomeCompleto: "Outro Usuário",
-      cpf: "222.222.222-22",
-      email: "outro@exemplo.com",
-      telefone: "(81) 97777-7777",
-      bairro: "Madalena",
-      cidade: "Recife",
-      estado: "PE",
-    },
-  ]);
+  useEffect(() => {
+    async function carregarUsuarios() {
+      try {
+        setCarregando(true);
+        setErro("");
 
-  const usuariosFiltrados = usuarios.filter((usuario) => {
-    const termo = busca.toLowerCase().trim();
+        const usuarioSalvo =
+          localStorage.getItem("usuarioLogado") ||
+          sessionStorage.getItem("usuarioLogado");
 
-    if (!termo) {
-      return true;
+        const token =
+          localStorage.getItem("token") ||
+          sessionStorage.getItem("token");
+
+        if (!usuarioSalvo || !token) {
+          navigate("/login");
+          return;
+        }
+
+        let usuarioLogado;
+
+        try {
+          usuarioLogado = JSON.parse(usuarioSalvo);
+        } catch {
+          localStorage.removeItem("usuarioLogado");
+          localStorage.removeItem("token");
+          sessionStorage.removeItem("usuarioLogado");
+          sessionStorage.removeItem("token");
+
+          navigate("/login");
+          return;
+        }
+
+        if (usuarioLogado.tipo !== "BOSS") {
+          navigate("/");
+          return;
+        }
+
+        const resposta = await fetch(
+          `${API_URL}/api/usuarios`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (resposta.status === 401) {
+          localStorage.removeItem("usuarioLogado");
+          localStorage.removeItem("token");
+          sessionStorage.removeItem("usuarioLogado");
+          sessionStorage.removeItem("token");
+
+          navigate("/login");
+          return;
+        }
+
+        if (resposta.status === 403) {
+          throw new Error(
+            "Você não possui permissão para visualizar os usuários."
+          );
+        }
+
+        if (!resposta.ok) {
+          let mensagemErro =
+            "Não foi possível carregar os usuários.";
+
+          try {
+            const dadosErro = await resposta.json();
+
+            mensagemErro =
+              dadosErro?.message ||
+              dadosErro?.mensagem ||
+              mensagemErro;
+          } catch {
+            // Mantém a mensagem padrão.
+          }
+
+          throw new Error(mensagemErro);
+        }
+
+        const dados = await resposta.json();
+
+        if (Array.isArray(dados)) {
+          setUsuarios(dados);
+        } else {
+          setUsuarios([]);
+        }
+      } catch (error) {
+        console.error(
+          "Erro ao carregar usuários:",
+          error
+        );
+
+        setErro(
+          error.message ||
+            "Não foi possível carregar os usuários."
+        );
+      } finally {
+        setCarregando(false);
+      }
     }
 
+    carregarUsuarios();
+  }, [navigate]);
+
+  const formatarTipo = (tipo) => {
+    switch (tipo) {
+      case "USUARIO":
+        return "Usuário";
+
+      case "GESTOR":
+        return "Gestor";
+
+      case "BOSS":
+        return "Boss";
+
+      default:
+        return tipo || "Não informado";
+    }
+  };
+
+  const usuariosFiltrados = useMemo(() => {
+    const termo = busca
+      .toLowerCase()
+      .trim();
+
+    if (!termo) {
+      return usuarios;
+    }
+
+    return usuarios.filter((usuario) => {
+      const nome = (
+        usuario.nomeCompleto || ""
+      ).toLowerCase();
+
+      const cpf = (
+        usuario.cpf || ""
+      ).toLowerCase();
+
+      const email = (
+        usuario.email || ""
+      ).toLowerCase();
+
+      const bairro = (
+        usuario.bairro || ""
+      ).toLowerCase();
+
+      const bairroAtuacao = (
+        usuario.bairroAtuacao || ""
+      ).toLowerCase();
+
+      const tipo = (
+        usuario.tipo || ""
+      ).toLowerCase();
+
+      return (
+        nome.includes(termo) ||
+        cpf.includes(termo) ||
+        email.includes(termo) ||
+        bairro.includes(termo) ||
+        bairroAtuacao.includes(termo) ||
+        tipo.includes(termo)
+      );
+    });
+  }, [busca, usuarios]);
+
+  const totalUsuarios = usuarios.filter(
+    (usuario) => usuario.tipo === "USUARIO"
+  ).length;
+
+  const totalGestores = usuarios.filter(
+    (usuario) => usuario.tipo === "GESTOR"
+  ).length;
+
+  const bairrosComUsuarios = new Set(
+    usuarios
+      .map((usuario) => usuario.bairro)
+      .filter(
+        (bairro) =>
+          bairro &&
+          bairro.trim() !== ""
+      )
+      .map((bairro) =>
+        bairro.trim().toLowerCase()
+      )
+  ).size;
+
+  if (carregando) {
     return (
-      usuario.nomeCompleto.toLowerCase().includes(termo) ||
-      usuario.cpf.toLowerCase().includes(termo) ||
-      usuario.email.toLowerCase().includes(termo) ||
-      usuario.bairro.toLowerCase().includes(termo)
+      <main className="admin-usuarios-page">
+        <div className="admin-usuarios-container">
+          <div className="admin-usuarios-voltar">
+            <Link to="/admin">
+              ← Voltar ao painel
+            </Link>
+          </div>
+
+          <section className="admin-usuarios-topo">
+            <span className="admin-usuarios-label">
+              Administração
+            </span>
+
+            <h1>Usuários</h1>
+
+            <p>
+              Carregando usuários cadastrados...
+            </p>
+          </section>
+
+          <section className="admin-usuarios-card">
+            <div className="admin-usuarios-carregando">
+              Carregando usuários...
+            </div>
+          </section>
+        </div>
+      </main>
     );
-  });
+  }
 
   return (
     <main className="admin-usuarios-page">
@@ -70,8 +250,8 @@ function AdminUsuarios() {
           <h1>Usuários</h1>
 
           <p>
-            Consulte os usuários cadastrados na plataforma
-            Raiz Urbana.
+            Consulte os usuários cadastrados e gerencie
+            os tipos de conta da plataforma Raiz Urbana.
           </p>
         </section>
 
@@ -82,8 +262,45 @@ function AdminUsuarios() {
             </div>
 
             <div>
-              <strong>{usuarios.length}</strong>
-              <span>Usuários cadastrados</span>
+              <strong>
+                {usuarios.length}
+              </strong>
+
+              <span>
+                Contas cadastradas
+              </span>
+            </div>
+          </div>
+
+          <div className="admin-usuarios-resumo-card">
+            <div className="admin-usuarios-resumo-icon">
+              👤
+            </div>
+
+            <div>
+              <strong>
+                {totalUsuarios}
+              </strong>
+
+              <span>
+                Usuários
+              </span>
+            </div>
+          </div>
+
+          <div className="admin-usuarios-resumo-card">
+            <div className="admin-usuarios-resumo-icon">
+              🛡️
+            </div>
+
+            <div>
+              <strong>
+                {totalGestores}
+              </strong>
+
+              <span>
+                Gestores
+              </span>
             </div>
           </div>
 
@@ -94,16 +311,12 @@ function AdminUsuarios() {
 
             <div>
               <strong>
-                {
-                  new Set(
-                    usuarios.map(
-                      (usuario) => usuario.bairro
-                    )
-                  ).size
-                }
+                {bairrosComUsuarios}
               </strong>
 
-              <span>Bairros com usuários</span>
+              <span>
+                Bairros com usuários
+              </span>
             </div>
           </div>
         </section>
@@ -111,7 +324,9 @@ function AdminUsuarios() {
         <section className="admin-usuarios-card">
           <div className="admin-usuarios-ferramentas">
             <div>
-              <h2>Usuários cadastrados</h2>
+              <h2>
+                Contas cadastradas
+              </h2>
 
               <p>
                 Pesquise e visualize os dados das contas.
@@ -130,74 +345,117 @@ function AdminUsuarios() {
                 onChange={(e) =>
                   setBusca(e.target.value)
                 }
-                placeholder="Nome, CPF, e-mail ou bairro"
+                placeholder="Nome, CPF, e-mail, bairro ou tipo"
               />
             </div>
           </div>
 
-          <div className="admin-usuarios-lista">
-            {usuariosFiltrados.length === 0 && (
-              <div className="admin-usuarios-vazio">
-                Nenhum usuário encontrado.
-              </div>
-            )}
+          {erro && (
+            <div className="admin-usuarios-erro">
+              <strong>
+                Não foi possível carregar os usuários.
+              </strong>
 
-            {usuariosFiltrados.map((usuario) => (
-              <article
-                key={usuario.id}
-                className="admin-usuario-item"
+              <p>
+                {erro}
+              </p>
+
+              <button
+                type="button"
+                onClick={() =>
+                  window.location.reload()
+                }
               >
-                <div className="admin-usuario-principal">
-                  <div className="admin-usuario-avatar">
-                    👤
+                Tentar novamente
+              </button>
+            </div>
+          )}
+
+          {!erro && (
+            <div className="admin-usuarios-lista">
+              {usuariosFiltrados.length === 0 && (
+                <div className="admin-usuarios-vazio">
+                  Nenhum usuário encontrado.
+                </div>
+              )}
+
+              {usuariosFiltrados.map((usuario) => (
+                <article
+                  key={usuario.id}
+                  className="admin-usuario-item"
+                >
+                  <div className="admin-usuario-principal">
+                    <div className="admin-usuario-avatar">
+                      {usuario.tipo === "BOSS"
+                        ? "👑"
+                        : usuario.tipo === "GESTOR"
+                        ? "🛡️"
+                        : "👤"}
+                    </div>
+
+                    <div>
+                      <h3>
+                        {usuario.nomeCompleto ||
+                          "Nome não informado"}
+                      </h3>
+
+                      <p>
+                        {usuario.email ||
+                          "E-mail não informado"}
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <h3>
-                      {usuario.nomeCompleto}
-                    </h3>
+                  <div className="admin-usuario-dado">
+                    <span>CPF</span>
 
-                    <p>
-                      {usuario.email}
-                    </p>
+                    <strong>
+                      {usuario.cpf ||
+                        "Não informado"}
+                    </strong>
                   </div>
-                </div>
 
-                <div className="admin-usuario-dado">
-                  <span>CPF</span>
+                  <div className="admin-usuario-dado">
+                    <span>Bairro</span>
 
-                  <strong>
-                    {usuario.cpf}
-                  </strong>
-                </div>
+                    <strong>
+                      {usuario.bairro ||
+                        "Não informado"}
+                    </strong>
+                  </div>
 
-                <div className="admin-usuario-dado">
-                  <span>Telefone</span>
+                  <div className="admin-usuario-dado">
+                    <span>Tipo</span>
 
-                  <strong>
-                    {usuario.telefone}
-                  </strong>
-                </div>
+                    <span
+                      className={`admin-usuario-tipo tipo-${(
+                        usuario.tipo || "USUARIO"
+                      ).toLowerCase()}`}
+                    >
+                      {formatarTipo(usuario.tipo)}
+                    </span>
 
-                <div className="admin-usuario-dado">
-                  <span>Bairro</span>
+                    {usuario.tipo === "GESTOR" &&
+                      usuario.bairroAtuacao && (
+                        <small className="admin-usuario-bairro-atuacao">
+                          Atua em:{" "}
+                          {usuario.bairroAtuacao}
+                        </small>
+                      )}
+                  </div>
 
-                  <strong>
-                    {usuario.bairro}
-                  </strong>
-                </div>
-
-                <div className="admin-usuario-acoes">
-                  <Link
-                    to={`/admin/usuarios/${usuario.id}`}
-                    className="admin-usuario-visualizar"
-                  >
-                    Visualizar
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+                  <div className="admin-usuario-acoes">
+                    <Link
+                      to={`/admin/usuarios/${usuario.id}`}
+                      className="admin-usuario-visualizar"
+                    >
+                      Visualizar
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </main>

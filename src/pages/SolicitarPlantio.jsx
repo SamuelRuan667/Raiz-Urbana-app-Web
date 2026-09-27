@@ -3,7 +3,7 @@ import API_URL from "../services/api";
 import "./SolicitarPlantio.css";
 
 function SolicitarPlantio() {
-  const [formulario, setFormulario] = useState({
+  const formularioInicial = {
     nome: "",
     cpf: "",
     email: "",
@@ -16,10 +16,13 @@ function SolicitarPlantio() {
     tipoLocal: "Calçada em frente à residência",
     observacoes: "",
     foto: null,
-  });
+  };
+
+  const [formulario, setFormulario] = useState(formularioInicial);
 
   const [carregandoCep, setCarregandoCep] = useState(false);
   const [erroCep, setErroCep] = useState("");
+  const [enviando, setEnviando] = useState(false);
 
   // =========================
   // MÁSCARAS
@@ -36,11 +39,17 @@ function SolicitarPlantio() {
     }
 
     if (valor.length > 6) {
-      return valor.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+      return valor.replace(
+        /(\d{3})(\d{3})(\d{1,3})/,
+        "$1.$2.$3"
+      );
     }
 
     if (valor.length > 3) {
-      return valor.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+      return valor.replace(
+        /(\d{3})(\d{1,3})/,
+        "$1.$2"
+      );
     }
 
     return valor;
@@ -64,7 +73,10 @@ function SolicitarPlantio() {
     }
 
     if (valor.length > 2) {
-      return valor.replace(/(\d{2})(\d{1,5})/, "($1) $2");
+      return valor.replace(
+        /(\d{2})(\d{1,5})/,
+        "($1) $2"
+      );
     }
 
     return valor;
@@ -74,7 +86,10 @@ function SolicitarPlantio() {
     valor = valor.replace(/\D/g, "").slice(0, 8);
 
     if (valor.length > 5) {
-      return valor.replace(/(\d{5})(\d{1,3})/, "$1-$2");
+      return valor.replace(
+        /(\d{5})(\d{1,3})/,
+        "$1-$2"
+      );
     }
 
     return valor;
@@ -107,8 +122,10 @@ function SolicitarPlantio() {
       [name]: valorFormatado,
     }));
 
-    // Busca o endereço quando o CEP estiver completo
-    if (name === "cep" && valorFormatado.replace(/\D/g, "").length === 8) {
+    if (
+      name === "cep" &&
+      valorFormatado.replace(/\D/g, "").length === 8
+    ) {
       buscarCEP(valorFormatado);
     }
   };
@@ -133,18 +150,22 @@ function SolicitarPlantio() {
       );
 
       if (!resposta.ok) {
-        throw new Error("Erro na consulta do CEP");
+        throw new Error(
+          "Erro na consulta do CEP"
+        );
       }
 
       const dados = await resposta.json();
 
       if (dados.erro) {
         setErroCep("CEP não encontrado.");
+
         setFormulario((anterior) => ({
           ...anterior,
           rua: "",
           bairro: "",
         }));
+
         return;
       }
 
@@ -154,8 +175,14 @@ function SolicitarPlantio() {
         bairro: dados.bairro || "",
       }));
     } catch (erro) {
-      console.error("Erro ao consultar CEP:", erro);
-      setErroCep("Não foi possível consultar o CEP.");
+      console.error(
+        "Erro ao consultar CEP:",
+        erro
+      );
+
+      setErroCep(
+        "Não foi possível consultar o CEP."
+      );
     } finally {
       setCarregandoCep(false);
     }
@@ -166,7 +193,7 @@ function SolicitarPlantio() {
   // =========================
 
   const handleFoto = (e) => {
-    const arquivo = e.target.files[0];
+    const arquivo = e.target.files?.[0];
 
     if (arquivo) {
       setFormulario((anterior) => ({
@@ -177,127 +204,209 @@ function SolicitarPlantio() {
   };
 
   // =========================
-  // ENVIO DO FORMULÁRIO COM INTEGRAÇÃO
+  // AUTENTICAÇÃO
   // =========================
 
-  const [enviando, setEnviando] = useState(false);
+  const obterAutenticacao = () => {
+    const usuarioSession =
+      sessionStorage.getItem("usuarioLogado");
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    const tokenSession =
+      sessionStorage.getItem("token");
 
-  const usuarioSalvo =
-    localStorage.getItem("usuarioLogado") ||
-    sessionStorage.getItem("usuarioLogado");
+    if (usuarioSession && tokenSession) {
+      return {
+        usuarioSalvo: usuarioSession,
+        token: tokenSession,
+      };
+    }
 
-  if (!usuarioSalvo) {
-    alert("Você precisa estar logado para solicitar um plantio.");
-    return;
-  }
+    const usuarioLocal =
+      localStorage.getItem("usuarioLogado");
 
-  let usuarioLogado;
+    const tokenLocal =
+      localStorage.getItem("token");
 
-  try {
-    usuarioLogado = JSON.parse(usuarioSalvo);
-  } catch {
-    alert("Erro ao identificar o usuário logado. Faça login novamente.");
-    return;
-  }
+    if (usuarioLocal && tokenLocal) {
+      return {
+        usuarioSalvo: usuarioLocal,
+        token: tokenLocal,
+      };
+    }
 
-  if (!usuarioLogado?.id) {
-    alert("Não foi possível identificar o usuário. Faça login novamente.");
-    return;
-  }
+    return null;
+  };
 
-  if (!formulario.foto) {
-    alert("É obrigatório enviar uma foto do local.");
-    return;
-  }
+  // =========================
+  // ENVIO DO FORMULÁRIO
+  // =========================
 
-  setEnviando(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const dadosEnvio = {
-      usuarioId: Number(usuarioLogado.id),
-      nomeCompleto: formulario.nome,
-      cpf: formulario.cpf,
-      telefone: formulario.telefone,
-      email: formulario.email,
-      cep: formulario.cep,
-      bairro: formulario.bairro,
-      ruaAvenida: formulario.rua,
-      numero: formulario.numero || "",
-      pontoReferencia: formulario.referencia || "",
-      tipoLocal: formulario.tipoLocal,
-      observacoes: formulario.observacoes || "",
-    };
+    const autenticacao = obterAutenticacao();
 
-    console.log("Dados enviados:", dadosEnvio);
+    if (!autenticacao) {
+      alert(
+        "Você precisa estar logado para solicitar um plantio."
+      );
 
-    const formData = new FormData();
+      return;
+    }
 
-    formData.append(
-      "dados",
-      new Blob(
-        [JSON.stringify(dadosEnvio)],
-        { type: "application/json" }
-      )
-    );
+    let usuarioLogado;
 
-    formData.append("foto", formulario.foto);
+    try {
+      usuarioLogado = JSON.parse(
+        autenticacao.usuarioSalvo
+      );
+    } catch {
+      alert(
+        "Erro ao identificar o usuário logado. Faça login novamente."
+      );
 
-    const resposta = await fetch(
-      `${API_URL}/api/solicitacoes`,
-      {
-        method: "POST",
-        body: formData,
+      return;
+    }
+
+    if (!usuarioLogado?.id) {
+      alert(
+        "Não foi possível identificar o usuário. Faça login novamente."
+      );
+
+      return;
+    }
+
+    if (usuarioLogado.tipo !== "USUARIO") {
+      alert(
+        "Somente usuários podem solicitar plantio."
+      );
+
+      return;
+    }
+
+    if (!formulario.foto) {
+      alert(
+        "É obrigatório enviar uma foto do local."
+      );
+
+      return;
+    }
+
+    setEnviando(true);
+
+    try {
+      // O usuarioId NÃO é enviado.
+      // O backend identifica o usuário através do JWT.
+      const dadosEnvio = {
+        nomeCompleto: formulario.nome,
+        cpf: formulario.cpf,
+        telefone: formulario.telefone,
+        email: formulario.email,
+        cep: formulario.cep,
+        bairro: formulario.bairro,
+        ruaAvenida: formulario.rua,
+        numero: formulario.numero || "",
+        pontoReferencia:
+          formulario.referencia || "",
+        tipoLocal: formulario.tipoLocal,
+        observacoes:
+          formulario.observacoes || "",
+      };
+
+      const formData = new FormData();
+
+      formData.append(
+        "dados",
+        new Blob(
+          [JSON.stringify(dadosEnvio)],
+          {
+            type: "application/json",
+          }
+        )
+      );
+
+      formData.append(
+        "foto",
+        formulario.foto
+      );
+
+      const resposta = await fetch(
+        `${API_URL}/api/solicitacoes`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${autenticacao.token}`,
+          },
+
+          body: formData,
+        }
+      );
+
+      if (resposta.status === 401) {
+        throw new Error(
+          "Sua sessão expirou. Faça login novamente."
+        );
       }
-    );
 
-    if (!resposta.ok) {
-      const erro = await resposta.text();
+      if (resposta.status === 403) {
+        throw new Error(
+          "Você não possui permissão para enviar esta solicitação."
+        );
+      }
 
+      if (!resposta.ok) {
+        const erroBackend =
+          await resposta.text();
+
+        console.error(
+          "Erro do backend:",
+          resposta.status,
+          erroBackend
+        );
+
+        throw new Error(
+          erroBackend ||
+            "Erro ao processar solicitação."
+        );
+      }
+
+      const respostaJson =
+        await resposta.json();
+
+      alert(
+        `🎉 Solicitação cadastrada com sucesso!\nSeu protocolo é: ${respostaJson.protocolo}`
+      );
+
+      // Limpa todos os campos.
+      setFormulario({
+        ...formularioInicial,
+      });
+
+      setErroCep("");
+
+      // Limpa também visualmente o input file.
+      const inputFoto =
+        document.getElementById("foto");
+
+      if (inputFoto) {
+        inputFoto.value = "";
+      }
+    } catch (erro) {
       console.error(
-        "Erro do backend:",
-        resposta.status,
+        "Erro ao enviar solicitação:",
         erro
       );
 
-      throw new Error(
-        erro || "Erro ao processar solicitação."
+      alert(
+        erro.message ||
+          "Não foi possível enviar a solicitação. Verifique os dados e tente novamente."
       );
+    } finally {
+      setEnviando(false);
     }
-
-    const respostaJson = await resposta.json();
-
-    alert(
-      `🎉 Solicitação cadastrada com sucesso!\nSeu protocolo é: ${respostaJson.protocolo}`
-    );
-
-    setFormulario({
-      nome: "",
-      cpf: "",
-      email: "",
-      telefone: "",
-      cep: "",
-      rua: "",
-      bairro: "",
-      numero: "",
-      referencia: "",
-      tipoLocal: "",
-      observacoes: "",
-      foto: null,
-    });
-
-  } catch (erro) {
-    console.error("Erro ao enviar solicitação:", erro);
-
-    alert(
-      "Não foi possível enviar a solicitação. Verifique os dados e tente novamente."
-    );
-  } finally {
-    setEnviando(false);
-  }
-};
+  };
 
   return (
     <main className="solicitar-page">
@@ -320,7 +429,9 @@ const handleSubmit = async (e) => {
       ========================== */}
 
       <section className="novidade-card">
-        <div className="novidade-icone">📷</div>
+        <div className="novidade-icone">
+          📷
+        </div>
 
         <div>
           <h2>Novidade!</h2>
@@ -337,16 +448,16 @@ const handleSubmit = async (e) => {
           FORMULÁRIO
       ========================== */}
 
-      <form className="plantio-form" onSubmit={handleSubmit}>
-
+      <form
+        className="plantio-form"
+        onSubmit={handleSubmit}
+      >
         {/* =========================
             1. DADOS PESSOAIS
         ========================== */}
 
         <section className="form-section">
           <div className="section-title">
-            
-
             <h2>Dados Pessoais</h2>
           </div>
 
@@ -425,16 +536,15 @@ const handleSubmit = async (e) => {
 
         <section className="form-section">
           <div className="section-title">
-            
-
             <h2>
-              <span className="location-icon">📍</span>
+              <span className="location-icon">
+                📍
+              </span>
               Endereço do Plantio
             </h2>
           </div>
 
           <div className="form-grid">
-
             <div className="form-group">
               <label htmlFor="cep">
                 CEP <span>*</span>
@@ -517,7 +627,8 @@ const handleSubmit = async (e) => {
 
             <div className="form-group">
               <label htmlFor="referencia">
-                Ponto de Referência <span>*</span>
+                Ponto de Referência{" "}
+                <span>*</span>
               </label>
 
               <input
@@ -592,10 +703,11 @@ const handleSubmit = async (e) => {
 
         <section className="form-section">
           <div className="section-title">
-            
-
             <h2>
-              Foto do Local <span className="required-title">*</span>
+              Foto do Local{" "}
+              <span className="required-title">
+                *
+              </span>
             </h2>
           </div>
 
@@ -636,7 +748,8 @@ const handleSubmit = async (e) => {
 
             {formulario.foto && (
               <p className="foto-selecionada">
-                ✓ Foto selecionada: {formulario.foto.name}
+                ✓ Foto selecionada:{" "}
+                {formulario.foto.name}
               </p>
             )}
           </div>
@@ -656,10 +769,11 @@ const handleSubmit = async (e) => {
             className="btn-enviar"
             disabled={enviando}
           >
-            {enviando ? "Enviando..." : "Enviar Solicitação"}
+            {enviando
+              ? "Enviando..."
+              : "Enviar Solicitação"}
           </button>
         </div>
-
       </form>
     </main>
   );

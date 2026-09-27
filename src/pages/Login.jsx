@@ -30,7 +30,7 @@ function Login() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email,
+            email: email.trim(),
             senha,
           }),
         }
@@ -52,6 +52,12 @@ function Login() {
         );
       }
 
+      if (!resposta?.token) {
+        throw new Error(
+          "O servidor não retornou o token de autenticação."
+        );
+      }
+
       const usuario = {
         id: resposta.id,
         nomeCompleto: resposta.nomeCompleto,
@@ -60,19 +66,45 @@ function Login() {
       };
 
       if (lembrar) {
+        // Salva usuário e token de forma persistente.
         localStorage.setItem(
           "usuarioLogado",
           JSON.stringify(usuario)
         );
 
-        sessionStorage.removeItem("usuarioLogado");
+        localStorage.setItem(
+          "token",
+          resposta.token
+        );
+
+        // Remove possíveis dados antigos da sessão.
+        sessionStorage.removeItem(
+          "usuarioLogado"
+        );
+
+        sessionStorage.removeItem(
+          "token"
+        );
       } else {
+        // Salva usuário e token somente durante a sessão.
         sessionStorage.setItem(
           "usuarioLogado",
           JSON.stringify(usuario)
         );
 
-        localStorage.removeItem("usuarioLogado");
+        sessionStorage.setItem(
+          "token",
+          resposta.token
+        );
+
+        // Remove possíveis dados persistentes antigos.
+        localStorage.removeItem(
+          "usuarioLogado"
+        );
+
+        localStorage.removeItem(
+          "token"
+        );
       }
 
       window.dispatchEvent(

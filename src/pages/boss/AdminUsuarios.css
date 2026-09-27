@@ -11,6 +11,10 @@
   margin: 0 auto;
 }
 
+/* =========================
+   VOLTAR
+========================= */
+
 .admin-usuarios-voltar {
   margin-bottom: 25px;
 }
@@ -19,12 +23,24 @@
   color: #687168;
   font-size: 14px;
   font-weight: 650;
-  text-decoration: none;
+  text-decoration: none !important;
+}
+
+.admin-usuarios-voltar a:link,
+.admin-usuarios-voltar a:visited,
+.admin-usuarios-voltar a:active {
+  color: #687168;
+  text-decoration: none !important;
 }
 
 .admin-usuarios-voltar a:hover {
   color: #355f3c;
+  text-decoration: none !important;
 }
+
+/* =========================
+   TOPO
+========================= */
 
 .admin-usuarios-topo {
   margin-bottom: 32px;
@@ -52,10 +68,14 @@
   font-size: 15px;
 }
 
+/* =========================
+   RESUMO
+========================= */
+
 .admin-usuarios-resumo {
   margin-bottom: 30px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
@@ -96,12 +116,20 @@
   font-size: 12px;
 }
 
+/* =========================
+   CARD PRINCIPAL
+========================= */
+
 .admin-usuarios-card {
   padding: 30px;
   background-color: #ffffff;
   border-radius: 16px;
   box-shadow: 0 5px 20px rgba(32, 53, 42, 0.06);
 }
+
+/* =========================
+   FERRAMENTAS
+========================= */
 
 .admin-usuarios-ferramentas {
   margin-bottom: 25px;
@@ -124,6 +152,10 @@
   color: #687168;
   font-size: 13px;
 }
+
+/* =========================
+   BUSCA
+========================= */
 
 .admin-usuarios-busca {
   width: 100%;
@@ -162,6 +194,10 @@
   box-shadow: 0 0 0 3px rgba(53, 95, 60, 0.1);
 }
 
+/* =========================
+   LISTA
+========================= */
+
 .admin-usuarios-lista {
   display: flex;
   flex-direction: column;
@@ -171,7 +207,12 @@
 .admin-usuario-item {
   padding: 18px;
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr 0.7fr;
+  grid-template-columns:
+    minmax(210px, 1.6fr)
+    minmax(120px, 0.9fr)
+    minmax(120px, 0.9fr)
+    minmax(140px, 0.9fr)
+    100px;
   align-items: center;
   gap: 18px;
   border: 1px solid #e3e8e1;
@@ -184,10 +225,15 @@
   box-shadow: 0 4px 14px rgba(32, 53, 42, 0.05);
 }
 
+/* =========================
+   USUÁRIO
+========================= */
+
 .admin-usuario-principal {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .admin-usuario-avatar {
@@ -202,26 +248,37 @@
   font-size: 19px;
 }
 
+.admin-usuario-principal > div:last-child {
+  min-width: 0;
+}
+
 .admin-usuario-principal h3 {
   margin: 0 0 4px;
   color: #20352a;
   font-size: 14px;
+  overflow-wrap: anywhere;
 }
 
 .admin-usuario-principal p {
   margin: 0;
   color: #687168;
   font-size: 11px;
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
+
+/* =========================
+   DADOS
+========================= */
 
 .admin-usuario-dado {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 4px;
+  min-width: 0;
 }
 
-.admin-usuario-dado span {
+.admin-usuario-dado > span:first-child {
   color: #8a938b;
   font-size: 10px;
   text-transform: uppercase;
@@ -231,7 +288,51 @@
   color: #405047;
   font-size: 12px;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
+
+/* =========================
+   TIPOS
+========================= */
+
+.admin-usuario-tipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 10px !important;
+  font-weight: 700;
+  text-transform: none !important;
+  white-space: nowrap;
+}
+
+.admin-usuario-tipo.tipo-usuario {
+  background-color: #eef2e9;
+  color: #59635c;
+}
+
+.admin-usuario-tipo.tipo-gestor {
+  background-color: #e8f1e4;
+  color: #355f3c;
+}
+
+.admin-usuario-tipo.tipo-boss {
+  background-color: #fff1df;
+  color: #b86b32;
+}
+
+.admin-usuario-bairro-atuacao {
+  display: block;
+  margin-top: 2px;
+  color: #687168;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* =========================
+   AÇÕES
+========================= */
 
 .admin-usuario-acoes {
   display: flex;
@@ -243,19 +344,33 @@
   padding: 8px 12px;
   border-radius: 7px;
   background-color: #355f3c;
-  color: #ffffff;
+  color: #ffffff !important;
   font-size: 11px;
   font-weight: 650;
   text-align: center;
-  text-decoration: none;
+  text-decoration: none !important;
   box-sizing: border-box;
   transition: 0.2s ease;
 }
 
-.admin-usuario-visualizar:hover {
-  background-color: #294b30;
+.admin-usuario-visualizar:link,
+.admin-usuario-visualizar:visited,
+.admin-usuario-visualizar:active {
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
+.admin-usuario-visualizar:hover {
+  background-color: #294b30;
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+/* =========================
+   CARREGANDO / VAZIO
+========================= */
+
+.admin-usuarios-carregando,
 .admin-usuarios-vazio {
   padding: 40px 20px;
   color: #687168;
@@ -263,9 +378,61 @@
   text-align: center;
 }
 
-@media (max-width: 950px) {
+/* =========================
+   ERRO
+========================= */
+
+.admin-usuarios-erro {
+  padding: 25px;
+  border: 1px solid #ead1cd;
+  border-radius: 10px;
+  background-color: #fbe9e7;
+}
+
+.admin-usuarios-erro strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #9d4038;
+  font-size: 14px;
+}
+
+.admin-usuarios-erro p {
+  margin: 0 0 15px;
+  color: #74433f;
+  font-size: 13px;
+}
+
+.admin-usuarios-erro button {
+  min-height: 38px;
+  padding: 0 15px;
+  border: none;
+  border-radius: 7px;
+  background-color: #355f3c;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.admin-usuarios-erro button:hover {
+  background-color: #294b30;
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 1050px) {
+  .admin-usuarios-resumo {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .admin-usuario-item {
-    grid-template-columns: 1.5fr 1fr 1fr;
+    grid-template-columns:
+      minmax(210px, 1.5fr)
+      1fr
+      1fr;
   }
 
   .admin-usuario-acoes {

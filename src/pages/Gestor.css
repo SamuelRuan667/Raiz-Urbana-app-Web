@@ -44,6 +44,14 @@
   line-height: 1.6;
 }
 
+/* PERFIL E AÇÕES */
+
+.gestor-topo-acoes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .gestor-perfil {
   display: flex;
   align-items: center;
@@ -76,6 +84,27 @@
   margin-top: 2px;
   color: #687168;
   font-size: 12px;
+}
+
+/* BOTÃO SAIR */
+
+.gestor-sair {
+  padding: 11px 20px;
+  border: 1px solid #b86b32;
+  border-radius: 8px;
+  background: transparent;
+  color: #b86b32;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.gestor-sair:hover {
+  background: #b86b32;
+  color: #ffffff;
 }
 
 /* RESUMO */
@@ -193,6 +222,11 @@
   color: #59635c;
 }
 
+.status-visita_agendada {
+  background: #e9f1f8;
+  color: #3f6583;
+}
+
 .status-aprovado {
   background: #e8f1e4;
   color: #355f3c;
@@ -208,7 +242,7 @@
   color: #355f3c;
 }
 
-/* BOTÃO */
+/* BOTÃO VER DETALHES */
 
 .gestor-ver {
   display: inline-flex;
@@ -224,6 +258,13 @@
   text-decoration: none !important;
   transition: 0.2s ease;
   white-space: nowrap;
+}
+
+.gestor-ver:link,
+.gestor-ver:visited,
+.gestor-ver:active {
+  color: #355f3c;
+  text-decoration: none !important;
 }
 
 .gestor-ver:hover {
@@ -243,6 +284,10 @@
     align-items: flex-start;
     flex-direction: column;
   }
+
+  .gestor-topo-acoes {
+    width: 100%;
+  }
 }
 
 @media (max-width: 550px) {
@@ -256,5 +301,19 @@
 
   .gestor-lista-card {
     padding: 22px 16px;
+  }
+
+  .gestor-topo-acoes {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gestor-perfil {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .gestor-sair {
+    width: 100%;
   }
 }
