@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import API_URL from "../services/api";
+
 import "./Perfil.css";
 
 function Perfil() {
@@ -8,6 +10,8 @@ function Perfil() {
 
   const [usuario, setUsuario] = useState(null);
   const [solicitacoes, setSolicitacoes] = useState([]);
+  const [carteira, setCarteira] = useState(null);
+  const [movimentacoes, setMovimentacoes] = useState([]);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
@@ -46,10 +50,6 @@ function Perfil() {
 
         setUsuario(usuarioLogado);
 
-        // ==========================================
-        // CARREGAR DADOS COMPLETOS DO USUÁRIO
-        // ==========================================
-
         try {
           const respostaUsuario = await fetch(
             `${API_URL}/api/usuarios/${usuarioLogado.id}`,
@@ -78,10 +78,6 @@ function Perfil() {
             erro
           );
         }
-
-        // ==========================================
-        // CARREGAR SOLICITAÇÕES DO USUÁRIO
-        // ==========================================
 
         try {
           const respostaSolicitacoes = await fetch(
@@ -119,6 +115,76 @@ function Perfil() {
 
           setSolicitacoes([]);
         }
+
+        try {
+          const respostaCarteira = await fetch(
+            `${API_URL}/api/carteiras-capiba/minha`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (respostaCarteira.ok) {
+            const dadosCarteira =
+              await respostaCarteira.json();
+
+            setCarteira(dadosCarteira);
+          } else {
+            console.error(
+              "Erro ao carregar Carteira Capiba. Status:",
+              respostaCarteira.status
+            );
+
+            setCarteira(null);
+          }
+        } catch (erro) {
+          console.error(
+            "Erro ao carregar Carteira Capiba:",
+            erro
+          );
+
+          setCarteira(null);
+        }
+
+        try {
+          const respostaMovimentacoes = await fetch(
+            `${API_URL}/api/carteiras-capiba/minha/movimentacoes`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (respostaMovimentacoes.ok) {
+            const dadosMovimentacoes =
+              await respostaMovimentacoes.json();
+
+            setMovimentacoes(
+              Array.isArray(dadosMovimentacoes)
+                ? dadosMovimentacoes
+                : []
+            );
+          } else {
+            console.error(
+              "Erro ao carregar movimentações. Status:",
+              respostaMovimentacoes.status
+            );
+
+            setMovimentacoes([]);
+          }
+        } catch (erro) {
+          console.error(
+            "Erro ao carregar movimentações:",
+            erro
+          );
+
+          setMovimentacoes([]);
+        }
       } catch (erro) {
         console.error(
           "Erro ao carregar perfil:",
@@ -140,10 +206,6 @@ function Perfil() {
     carregarPerfil();
   }, [navigate]);
 
-  // ==========================================
-  // SAIR DA CONTA
-  // ==========================================
-
   const sairDaConta = () => {
     sessionStorage.removeItem("usuarioLogado");
     sessionStorage.removeItem("token");
@@ -157,10 +219,6 @@ function Perfil() {
 
     navigate("/login");
   };
-
-  // ==========================================
-  // RESUMO DAS SOLICITAÇÕES
-  // ==========================================
 
   const totalSolicitacoes = solicitacoes.length;
 
@@ -177,9 +235,8 @@ function Perfil() {
       solicitacao.status === "APROVADO"
   ).length;
 
-  // ==========================================
-  // TRADUZIR STATUS
-  // ==========================================
+  const saldoCapiba =
+    carteira?.saldo ?? 0;
 
   const traduzirStatus = (status) => {
     switch (status) {
@@ -227,10 +284,6 @@ function Perfil() {
     }
   };
 
-  // ==========================================
-  // FORMATAR ENDEREÇO
-  // ==========================================
-
   const formatarEndereco = () => {
     if (!usuario) {
       return "-";
@@ -251,9 +304,19 @@ function Perfil() {
     return endereco.join(", ");
   };
 
-  // ==========================================
-  // CARREGAMENTO
-  // ==========================================
+  const formatarDataMovimentacao = (data) => {
+    if (!data) {
+      return "-";
+    }
+
+    return new Date(data).toLocaleString(
+      "pt-BR",
+      {
+        dateStyle: "short",
+        timeStyle: "short",
+      }
+    );
+  };
 
   if (carregando) {
     return (
@@ -269,18 +332,9 @@ function Perfil() {
     return null;
   }
 
-  // ==========================================
-  // PÁGINA
-  // ==========================================
-
   return (
     <main className="perfil-page">
       <div className="perfil-container">
-
-        {/* =====================================
-            PERFIL PRINCIPAL
-        ====================================== */}
-
         <section className="perfil-card perfil-principal">
           <div className="perfil-avatar">
             👤
@@ -318,17 +372,12 @@ function Perfil() {
           </div>
         </section>
 
-        {/* =====================================
-            DADOS PESSOAIS
-        ====================================== */}
-
         <section className="perfil-dados-card">
           <div className="perfil-section-header">
             <h2>Dados pessoais</h2>
           </div>
 
           <div className="perfil-dados-grid">
-
             <div className="perfil-dado">
               <span>Nome completo</span>
 
@@ -368,16 +417,10 @@ function Perfil() {
                 {formatarEndereco()}
               </strong>
             </div>
-
           </div>
         </section>
 
-        {/* =====================================
-            RESUMO
-        ====================================== */}
-
         <section className="perfil-resumo">
-
           <div className="perfil-resumo-card">
             <div className="perfil-resumo-icon">
               🌱
@@ -420,11 +463,89 @@ function Perfil() {
             </div>
           </div>
 
+          <div className="perfil-resumo-card">
+            <div className="perfil-resumo-icon">
+              ⭐
+            </div>
+
+            <div>
+              <strong>
+                {saldoCapiba}
+              </strong>
+
+              <p>Moedas Capiba</p>
+            </div>
+          </div>
         </section>
 
-        {/* =====================================
-            MINHAS SOLICITAÇÕES
-        ====================================== */}
+        <section className="perfil-dados-card">
+          <div className="perfil-section-header">
+            <h2>Carteira Capiba</h2>
+
+            <Link
+              to="/recompensas"
+              className="perfil-ver-detalhes"
+            >
+              Ver recompensas
+            </Link>
+          </div>
+
+          <div className="perfil-carteira-saldo">
+            <span>Saldo disponível</span>
+
+            <strong>
+              ⭐ {saldoCapiba} Moedas Capiba
+            </strong>
+
+            <p>
+              Ganhe 20 moedas quando uma solicitação de plantio for concluída.
+            </p>
+          </div>
+
+          <div className="perfil-movimentacoes">
+            <h3>
+              Histórico de movimentações
+            </h3>
+
+            {movimentacoes.length === 0 ? (
+              <p className="perfil-sem-movimentacoes">
+                Nenhuma movimentação realizada ainda.
+              </p>
+            ) : (
+              movimentacoes.map((movimentacao) => (
+                <div
+                  key={movimentacao.id}
+                  className="perfil-movimentacao-item"
+                >
+                  <div>
+                    <strong>
+                      {movimentacao.descricao}
+                    </strong>
+
+                    <span>
+                      {formatarDataMovimentacao(
+                        movimentacao.createdAt
+                      )}
+                    </span>
+                  </div>
+
+                  <strong
+                    className={
+                      movimentacao.tipo === "ENTRADA"
+                        ? "movimentacao-entrada"
+                        : "movimentacao-saida"
+                    }
+                  >
+                    {movimentacao.tipo === "ENTRADA"
+                      ? "+"
+                      : "-"}
+                    {movimentacao.quantidade}
+                  </strong>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
 
         <section className="perfil-solicitacoes">
           <div className="perfil-section-header">
@@ -487,7 +608,6 @@ function Perfil() {
             );
           })}
         </section>
-
       </div>
     </main>
   );
