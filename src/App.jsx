@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter,
   Routes,
@@ -83,12 +84,24 @@ function App() {
 
             <Route
               path="/parcerias/proposta"
-              element={<PropostaParceria />}
+              element={
+                <ProtectedRoute
+                  tiposPermitidos={["EMPRESA_PARCEIRA"]}
+                >
+                  <PropostaParceria />
+                </ProtectedRoute>
+              }
             />
 
             <Route
               path="/parcerias/proposta/enviada"
-              element={<ConfirmacaoProposta />}
+              element={
+                <ProtectedRoute
+                  tiposPermitidos={["EMPRESA_PARCEIRA"]}
+                >
+                  <ConfirmacaoProposta />
+                </ProtectedRoute>
+              }
             />
 
             <Route
@@ -139,10 +152,7 @@ function App() {
               path="/gestor"
               element={
                 <ProtectedRoute
-                  tiposPermitidos={[
-                    "GESTOR",
-                    "BOSS",
-                  ]}
+                  tiposPermitidos={["GESTOR", "BOSS"]}
                 >
                   <Gestor />
                 </ProtectedRoute>
@@ -153,10 +163,7 @@ function App() {
               path="/gestor/solicitacao/:id"
               element={
                 <ProtectedRoute
-                  tiposPermitidos={[
-                    "GESTOR",
-                    "BOSS",
-                  ]}
+                  tiposPermitidos={["GESTOR", "BOSS"]}
                 >
                   <DetalhesSolicitacao />
                 </ProtectedRoute>

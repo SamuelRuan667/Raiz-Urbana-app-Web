@@ -1,10 +1,10 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Header.css";
 
 function Header() {
-  const [usuarioLogado, setUsuarioLogado] =
-    useState(null);
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
 
   const carregarUsuario = () => {
     const usuarioSalvo =
@@ -17,9 +17,7 @@ function Header() {
     }
 
     try {
-      setUsuarioLogado(
-        JSON.parse(usuarioSalvo)
-      );
+      setUsuarioLogado(JSON.parse(usuarioSalvo));
     } catch {
       sessionStorage.removeItem("usuarioLogado");
       localStorage.removeItem("usuarioLogado");
@@ -35,10 +33,7 @@ function Header() {
       carregarUsuario
     );
 
-    window.addEventListener(
-      "storage",
-      carregarUsuario
-    );
+    window.addEventListener("storage", carregarUsuario);
 
     return () => {
       window.removeEventListener(
@@ -54,19 +49,27 @@ function Header() {
   }, []);
 
   const rotaPerfil = !usuarioLogado
-  ? "/login"
-  : usuarioLogado.tipo === "BOSS"
-  ? "/admin"
-  : usuarioLogado.tipo === "GESTOR"
-  ? "/gestor"
-  : "/perfil";
+    ? "/login"
+    : usuarioLogado.tipo === "BOSS"
+    ? "/admin"
+    : usuarioLogado.tipo === "GESTOR"
+    ? "/gestor"
+    : "/perfil";
+
+  const tituloPerfil = !usuarioLogado
+    ? "Entrar"
+    : usuarioLogado.tipo === "BOSS"
+    ? "Painel administrativo"
+    : usuarioLogado.tipo === "GESTOR"
+    ? "Painel do gestor"
+    : usuarioLogado.tipo === "EMPRESA_PARCEIRA"
+    ? "Perfil da empresa"
+    : "Meu perfil";
 
   return (
     <header className="header">
       <div className="header-container">
-
         <Link to="/" className="logo">
-
           <div className="logo-icon">
             <div className="logo-face">
               <span></span>
@@ -76,7 +79,6 @@ function Header() {
           </div>
 
           <span>Raiz Urbana</span>
-
         </Link>
 
         <nav className="nav">
@@ -90,13 +92,16 @@ function Header() {
             Recompensas
           </Link>
 
+          <Link to="/parcerias">
+            Parceria
+          </Link>
+
           <Link to="/quem-somos">
             Quem Somos
           </Link>
         </nav>
 
         <div className="header-buttons">
-
           <Link
             to="/solicitar-plantio"
             className="planting-button"
@@ -116,21 +121,11 @@ function Header() {
           <Link
             to={rotaPerfil}
             className="profile-button"
-            title={
-              !usuarioLogado
-                ? "Entrar"
-                : usuarioLogado.tipo === "BOSS"
-                ? "Painel administrativo"
-                : usuarioLogado.tipo === "GESTOR"
-                ? "Painel do gestor"
-                : "Meu perfil"
-            }
+            title={tituloPerfil}
           >
             👤
           </Link>
-
         </div>
-
       </div>
     </header>
   );

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API_URL from "../services/api";
@@ -11,12 +12,16 @@ function Cadastro() {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [erroCep, setErroCep] = useState("");
   const [erroCpf, setErroCpf] = useState("");
+  const [erroCnpj, setErroCnpj] = useState("");
 
   const [form, setForm] = useState({
     nomeCompleto: "",
     cpf: "",
     telefone: "",
     email: "",
+    cnpj: "",
+    razaoSocial: "",
+    nomeFantasia: "",
     cep: "",
     numero: "",
     rua: "",
@@ -25,10 +30,6 @@ function Cadastro() {
     estado: "",
     senha: "",
     confirmarSenha: "",
-    instituicao: "",
-    emailInstitucional: "",
-    bairroAtuacao: "",
-    codigoGestor: "",
   });
 
   const handleChange = (e) => {
@@ -41,53 +42,64 @@ function Cadastro() {
   };
 
   const validarCpf = (cpf) => {
-    const cpfLimpo = cpf.replace(/\D/g, "");
+    const numero = cpf.replace(/\D/g, "");
 
-    if (cpfLimpo.length !== 11) {
+    if (numero.length !== 11 || /^(\d)\1{10}$/.test(numero)) {
       return false;
     }
 
-    if (/^(\d)\1{10}$/.test(cpfLimpo)) {
+    for (let tamanho = 9; tamanho <= 10; tamanho++) {
+      let soma = 0;
+
+      for (let i = 0; i < tamanho; i++) {
+        soma += Number(numero[i]) * (tamanho + 1 - i);
+      }
+
+      const resto = (soma * 10) % 11;
+      const digito = resto === 10 ? 0 : resto;
+
+      if (digito !== Number(numero[tamanho])) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const validarCnpj = (cnpj) => {
+    const numero = cnpj.replace(/\D/g, "");
+
+    if (numero.length !== 14 || /^(\d)\1{13}$/.test(numero)) {
       return false;
     }
 
-    let soma = 0;
+    const calcularDigito = (pesos) => {
+      const soma = pesos.reduce(
+        (total, peso, indice) =>
+          total + Number(numero[indice]) * peso,
+        0
+      );
 
-    for (let i = 0; i < 9; i++) {
-      soma += Number(cpfLimpo.charAt(i)) * (10 - i);
-    }
+      const resto = soma % 11;
+      return resto < 2 ? 0 : 11 - resto;
+    };
 
-    let primeiroDigito = (soma * 10) % 11;
+    const primeiro = calcularDigito([
+      5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2,
+    ]);
 
-    if (primeiroDigito === 10) {
-      primeiroDigito = 0;
-    }
+    const segundo = calcularDigito([
+      6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2,
+    ]);
 
-    if (primeiroDigito !== Number(cpfLimpo.charAt(9))) {
-      return false;
-    }
-
-    soma = 0;
-
-    for (let i = 0; i < 10; i++) {
-      soma += Number(cpfLimpo.charAt(i)) * (11 - i);
-    }
-
-    let segundoDigito = (soma * 10) % 11;
-
-    if (segundoDigito === 10) {
-      segundoDigito = 0;
-    }
-
-    return segundoDigito === Number(cpfLimpo.charAt(10));
+    return (
+      primeiro === Number(numero[12]) &&
+      segundo === Number(numero[13])
+    );
   };
 
   const handleCpfChange = (e) => {
-    let valor = e.target.value.replace(/\D/g, "");
-
-    if (valor.length > 11) {
-      valor = valor.slice(0, 11);
-    }
+    let valor = e.target.value.replace(/\D/g, "").slice(0, 11);
 
     valor = valor
       .replace(/(\d{3})(\d)/, "$1.$2")
@@ -102,96 +114,25 @@ function Cadastro() {
     setErroCpf("");
   };
 
-  const verificarCpf = () => {
-    if (!form.cpf) {
-      setErroCpf("");
-      return;
-    }
+  const handleCnpjChange = (e) => {
+    let valor = e.target.value.replace(/\D/g, "").slice(0, 14);
 
-    if (!validarCpf(form.cpf)) {
-      setErroCpf("CPF inválido.");
-      return;
-    }
+    valor = valor
+      .replace(/^(\d{2})(\d)/, "$1.$2")
+      .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/\.(\d{3})(\d)/, ".$1/$2")
+      .replace(/(\d{4})(\d)/, "$1-$2");
 
-    setErroCpf("");
-  };
+    setForm((anterior) => ({
+      ...anterior,
+      cnpj: valor,
+    }));
 
-  const buscarCep = async (cepDigitado) => {
-    const cepLimpo = cepDigitado.replace(/\D/g, "");
-
-    if (cepLimpo.length !== 8) {
-      setErroCep("Digite um CEP válido com 8 números.");
-
-      setForm((anterior) => ({
-        ...anterior,
-        rua: "",
-        bairro: "",
-        cidade: "",
-        estado: "",
-      }));
-
-      return;
-    }
-
-    setBuscandoCep(true);
-    setErroCep("");
-
-    try {
-      const response = await fetch(
-        `https://viacep.com.br/ws/${cepLimpo}/json/`
-      );
-
-      if (!response.ok) {
-        throw new Error("Erro ao consultar CEP.");
-      }
-
-      const dados = await response.json();
-
-      if (dados.erro) {
-        setErroCep("CEP não encontrado.");
-
-        setForm((anterior) => ({
-          ...anterior,
-          rua: "",
-          bairro: "",
-          cidade: "",
-          estado: "",
-        }));
-
-        return;
-      }
-
-      setForm((anterior) => ({
-        ...anterior,
-        cep: cepDigitado,
-        rua: dados.logradouro || "",
-        bairro: dados.bairro || "",
-        cidade: dados.localidade || "",
-        estado: dados.uf || "",
-      }));
-    } catch (erro) {
-      console.error("Erro ao consultar ViaCEP:", erro);
-
-      setErroCep("Não foi possível consultar o CEP.");
-
-      setForm((anterior) => ({
-        ...anterior,
-        rua: "",
-        bairro: "",
-        cidade: "",
-        estado: "",
-      }));
-    } finally {
-      setBuscandoCep(false);
-    }
+    setErroCnpj("");
   };
 
   const handleCepChange = (e) => {
-    let valor = e.target.value.replace(/\D/g, "");
-
-    if (valor.length > 8) {
-      valor = valor.slice(0, 8);
-    }
+    let valor = e.target.value.replace(/\D/g, "").slice(0, 8);
 
     if (valor.length > 5) {
       valor = valor.replace(/^(\d{5})(\d)/, "$1-$2");
@@ -209,34 +150,75 @@ function Cadastro() {
     setErroCep("");
   };
 
+  const buscarCep = async (cepDigitado) => {
+    const cep = cepDigitado.replace(/\D/g, "");
+
+    if (cep.length !== 8) {
+      setErroCep("Digite um CEP válido com 8 números.");
+      return;
+    }
+
+    setBuscandoCep(true);
+    setErroCep("");
+
+    try {
+      const response = await fetch(
+        `https://viacep.com.br/ws/${cep}/json/`
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao consultar o CEP.");
+      }
+
+      const dados = await response.json();
+
+      if (dados.erro) {
+        throw new Error("CEP não encontrado.");
+      }
+
+      setForm((anterior) => ({
+        ...anterior,
+        rua: dados.logradouro || "",
+        bairro: dados.bairro || "",
+        cidade: dados.localidade || "",
+        estado: dados.uf || "",
+      }));
+    } catch (error) {
+      setErroCep(error.message || "Não foi possível consultar o CEP.");
+    } finally {
+      setBuscandoCep(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validarCpf(form.cpf)) {
       setErroCpf("CPF inválido.");
-      alert("Informe um CPF válido.");
       return;
     }
 
-    const cepLimpo = form.cep.replace(/\D/g, "");
+    if (tipoUsuario === "EMPRESA_PARCEIRA") {
+      if (!validarCnpj(form.cnpj)) {
+        setErroCnpj("CNPJ inválido.");
+        return;
+      }
 
-    if (cepLimpo.length !== 8 || erroCep) {
-      alert("Informe um CEP válido.");
-      return;
+      if (!form.razaoSocial.trim()) {
+        alert("Informe a razão social da empresa.");
+        return;
+      }
     }
 
     if (
+      form.cep.replace(/\D/g, "").length !== 8 ||
+      erroCep ||
       !form.rua.trim() ||
       !form.bairro.trim() ||
       !form.cidade.trim() ||
       !form.estado.trim()
     ) {
-      alert("Consulte um CEP válido antes de criar a conta.");
-      return;
-    }
-
-    if (form.senha !== form.confirmarSenha) {
-      alert("As senhas não coincidem.");
+      alert("Informe um endereço válido.");
       return;
     }
 
@@ -245,58 +227,42 @@ function Cadastro() {
       return;
     }
 
-    if (
-      tipoUsuario === "GESTOR" &&
-      (
-        !form.instituicao.trim() ||
-        !form.emailInstitucional.trim() ||
-        !form.bairroAtuacao.trim() ||
-        !form.codigoGestor.trim()
-      )
-    ) {
-      alert("Preencha todas as informações do gestor.");
+    if (form.senha !== form.confirmarSenha) {
+      alert("As senhas não coincidem.");
       return;
     }
 
     const dados = {
-      nomeCompleto: form.nomeCompleto,
-      cpf: form.cpf,
-      telefone: form.telefone,
-      email: form.email,
-      cep: form.cep,
-      numero: form.numero,
-      rua: form.rua,
-      bairro: form.bairro,
-      cidade: form.cidade,
+      nomeCompleto: form.nomeCompleto.trim(),
+      cpf: form.cpf.replace(/\D/g, ""),
+      telefone: form.telefone.trim(),
+      email: form.email.trim(),
+      cep: form.cep.replace(/\D/g, ""),
+      numero: form.numero.trim(),
+      rua: form.rua.trim(),
+      bairro: form.bairro.trim(),
+      cidade: form.cidade.trim(),
       estado: form.estado.toUpperCase(),
       senha: form.senha,
       confirmarSenha: form.confirmarSenha,
       tipo: tipoUsuario,
-
-      instituicao:
-        tipoUsuario === "GESTOR"
-          ? form.instituicao
+      cnpj:
+        tipoUsuario === "EMPRESA_PARCEIRA"
+          ? form.cnpj.replace(/\D/g, "")
           : null,
-
-      emailInstitucional:
-        tipoUsuario === "GESTOR"
-          ? form.emailInstitucional
+      razaoSocial:
+        tipoUsuario === "EMPRESA_PARCEIRA"
+          ? form.razaoSocial.trim()
           : null,
-
-      bairroAtuacao:
-        tipoUsuario === "GESTOR"
-          ? form.bairroAtuacao
-          : null,
-
-      codigoGestor:
-        tipoUsuario === "GESTOR"
-          ? form.codigoGestor
+      nomeFantasia:
+        tipoUsuario === "EMPRESA_PARCEIRA"
+          ? form.nomeFantasia.trim()
           : null,
     };
 
-    try {
-      setCarregando(true);
+    setCarregando(true);
 
+    try {
       const response = await fetch(
         `${API_URL}/api/auth/cadastro`,
         {
@@ -308,10 +274,11 @@ function Cadastro() {
         }
       );
 
+      const texto = await response.text();
       let resposta = null;
 
       try {
-        resposta = await response.json();
+        resposta = JSON.parse(texto);
       } catch {
         resposta = null;
       }
@@ -324,19 +291,10 @@ function Cadastro() {
         );
       }
 
-      alert(
-        resposta?.mensagem ||
-          "Conta criada com sucesso!"
-      );
-
+      alert("Conta criada com sucesso!");
       navigate("/login");
     } catch (error) {
-      console.error("Erro ao criar conta:", error);
-
-      alert(
-        error.message ||
-          "Erro ao conectar com o servidor."
-      );
+      alert(error.message || "Erro ao conectar com o servidor.");
     } finally {
       setCarregando(false);
     }
@@ -345,9 +303,7 @@ function Cadastro() {
   return (
     <div className="cadastro-page">
       <div className="cadastro-card">
-        <div className="cadastro-icon">
-          🌱
-        </div>
+        <div className="cadastro-icon">🌱</div>
 
         <h1>Crie sua conta</h1>
 
@@ -362,68 +318,52 @@ function Cadastro() {
             <button
               type="button"
               className={`tipo-option ${
-                tipoUsuario === "USUARIO"
-                  ? "selected"
-                  : ""
+                tipoUsuario === "USUARIO" ? "selected" : ""
               }`}
-              onClick={() =>
-                setTipoUsuario("USUARIO")
-              }
+              onClick={() => setTipoUsuario("USUARIO")}
             >
-              <span className="tipo-icon">
-                👤
-              </span>
-
+              <span className="tipo-icon">👤</span>
               <strong>Usuário</strong>
-
-              <small>
-                Solicitar e acompanhar plantios.
-              </small>
+              <small>Solicitar e acompanhar plantios.</small>
             </button>
 
             <button
               type="button"
               className={`tipo-option ${
-                tipoUsuario === "GESTOR"
-                  ? "selected gestor"
+                tipoUsuario === "EMPRESA_PARCEIRA"
+                  ? "selected"
                   : ""
               }`}
-              onClick={() =>
-                setTipoUsuario("GESTOR")
-              }
+              onClick={() => setTipoUsuario("EMPRESA_PARCEIRA")}
             >
-              <span className="tipo-icon">
-                🏢
-              </span>
-
-              <strong>Gestor</strong>
-
-              <small>
-                Gerenciar ações e solicitações.
-              </small>
+              <span className="tipo-icon">🏢</span>
+              <strong>Empresa Parceira</strong>
+              <small>Enviar propostas de parceria.</small>
             </button>
           </div>
         </div>
 
-        <form
-          className="cadastro-form"
-          onSubmit={handleSubmit}
-        >
+        <form className="cadastro-form" onSubmit={handleSubmit}>
           <div className="cadastro-section">
-            <h2>Dados pessoais</h2>
+            <h2>
+              {tipoUsuario === "EMPRESA_PARCEIRA"
+                ? "Dados do responsável"
+                : "Dados pessoais"}
+            </h2>
 
             <div className="cadastro-field">
               <label htmlFor="nomeCompleto">
-                Nome completo
+                {tipoUsuario === "EMPRESA_PARCEIRA"
+                  ? "Nome completo do responsável"
+                  : "Nome completo"}
               </label>
-
               <input
-                type="text"
                 id="nomeCompleto"
                 name="nomeCompleto"
-                placeholder="Digite seu nome completo"
+                type="text"
                 value={form.nomeCompleto}
                 onChange={handleChange}
+                placeholder="Digite o nome completo"
                 required
               />
             </div>
@@ -431,245 +371,209 @@ function Cadastro() {
             <div className="cadastro-row">
               <div className="cadastro-field">
                 <label htmlFor="cpf">
-                  CPF
+                  {tipoUsuario === "EMPRESA_PARCEIRA"
+                    ? "CPF do responsável"
+                    : "CPF"}
                 </label>
-
                 <input
-                  type="text"
                   id="cpf"
                   name="cpf"
-                  placeholder="000.000.000-00"
+                  type="text"
                   value={form.cpf}
-                  maxLength={14}
                   onChange={handleCpfChange}
-                  onBlur={verificarCpf}
+                  onBlur={() =>
+                    setErroCpf(
+                      form.cpf && !validarCpf(form.cpf)
+                        ? "CPF inválido."
+                        : ""
+                    )
+                  }
+                  placeholder="000.000.000-00"
+                  maxLength={14}
                   required
                 />
-
                 {erroCpf && (
-                  <small className="cadastro-error">
-                    {erroCpf}
-                  </small>
+                  <small className="cadastro-error">{erroCpf}</small>
                 )}
               </div>
 
               <div className="cadastro-field">
-                <label htmlFor="telefone">
-                  Telefone
-                </label>
-
+                <label htmlFor="telefone">Telefone</label>
                 <input
-                  type="tel"
                   id="telefone"
                   name="telefone"
-                  placeholder="(00) 00000-0000"
+                  type="tel"
                   value={form.telefone}
                   onChange={handleChange}
+                  placeholder="(00) 00000-0000"
                   required
                 />
               </div>
             </div>
 
             <div className="cadastro-field">
-              <label htmlFor="email">
-                E-mail
-              </label>
-
+              <label htmlFor="email">E-mail</label>
               <input
-                type="email"
                 id="email"
                 name="email"
-                placeholder="Digite seu e-mail"
+                type="email"
                 value={form.email}
                 onChange={handleChange}
+                placeholder={
+                  tipoUsuario === "EMPRESA_PARCEIRA"
+                    ? "E-mail de contato da empresa"
+                    : "Digite seu e-mail"
+                }
                 required
               />
             </div>
           </div>
 
-          {tipoUsuario === "GESTOR" && (
+          {tipoUsuario === "EMPRESA_PARCEIRA" && (
             <div className="cadastro-section gestor-section">
-              <h2>Informações do gestor</h2>
+              <h2>Dados da empresa</h2>
 
               <div className="cadastro-field">
-                <label htmlFor="instituicao">
-                  Instituição / órgão
-                </label>
-
+                <label htmlFor="cnpj">CNPJ</label>
                 <input
+                  id="cnpj"
+                  name="cnpj"
                   type="text"
-                  id="instituicao"
-                  name="instituicao"
-                  placeholder="Nome da instituição ou órgão"
-                  value={form.instituicao}
-                  onChange={handleChange}
+                  value={form.cnpj}
+                  onChange={handleCnpjChange}
+                  onBlur={() =>
+                    setErroCnpj(
+                      form.cnpj && !validarCnpj(form.cnpj)
+                        ? "CNPJ inválido."
+                        : ""
+                    )
+                  }
+                  placeholder="00.000.000/0000-00"
+                  maxLength={18}
                   required
                 />
+                {erroCnpj && (
+                  <small className="cadastro-error">{erroCnpj}</small>
+                )}
               </div>
 
               <div className="cadastro-field">
-                <label htmlFor="emailInstitucional">
-                  E-mail institucional
-                </label>
-
+                <label htmlFor="razaoSocial">Razão social</label>
                 <input
-                  type="email"
-                  id="emailInstitucional"
-                  name="emailInstitucional"
-                  placeholder="Digite seu e-mail institucional"
-                  value={form.emailInstitucional}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="cadastro-field">
-                <label htmlFor="bairroAtuacao">
-                  Bairro de atuação
-                </label>
-
-                <input
+                  id="razaoSocial"
+                  name="razaoSocial"
                   type="text"
-                  id="bairroAtuacao"
-                  name="bairroAtuacao"
-                  placeholder="Digite o bairro de atuação"
-                  value={form.bairroAtuacao}
+                  value={form.razaoSocial}
                   onChange={handleChange}
+                  placeholder="Razão social da empresa"
                   required
                 />
               </div>
 
               <div className="cadastro-field">
-                <label htmlFor="codigoGestor">
-                  Senha de autorização do gestor
-                </label>
-
+                <label htmlFor="nomeFantasia">Nome fantasia</label>
                 <input
-                  type="password"
-                  id="codigoGestor"
-                  name="codigoGestor"
-                  placeholder="Digite a senha de autorização"
-                  value={form.codigoGestor}
+                  id="nomeFantasia"
+                  name="nomeFantasia"
+                  type="text"
+                  value={form.nomeFantasia}
                   onChange={handleChange}
-                  required
+                  placeholder="Nome comercial da empresa"
                 />
               </div>
             </div>
           )}
 
           <div className="cadastro-section">
-            <h2>Endereço</h2>
+            <h2>
+              {tipoUsuario === "EMPRESA_PARCEIRA"
+                ? "Endereço da empresa"
+                : "Endereço"}
+            </h2>
 
             <div className="cadastro-row">
               <div className="cadastro-field">
-                <label htmlFor="cep">
-                  CEP
-                </label>
-
+                <label htmlFor="cep">CEP</label>
                 <input
-                  type="text"
                   id="cep"
                   name="cep"
-                  placeholder="00000-000"
+                  type="text"
                   value={form.cep}
-                  maxLength={9}
                   onChange={handleCepChange}
-                  onBlur={(e) =>
-                    buscarCep(e.target.value)
-                  }
+                  onBlur={(e) => buscarCep(e.target.value)}
+                  placeholder="00000-000"
+                  maxLength={9}
                   required
                 />
-
-                {buscandoCep && (
-                  <small>
-                    Buscando CEP...
-                  </small>
-                )}
-
+                {buscandoCep && <small>Buscando CEP...</small>}
                 {erroCep && (
-                  <small className="cadastro-error">
-                    {erroCep}
-                  </small>
+                  <small className="cadastro-error">{erroCep}</small>
                 )}
               </div>
 
               <div className="cadastro-field">
-                <label htmlFor="numero">
-                  Número
-                </label>
-
+                <label htmlFor="numero">Número</label>
                 <input
-                  type="text"
                   id="numero"
                   name="numero"
-                  placeholder="Número"
+                  type="text"
                   value={form.numero}
                   onChange={handleChange}
+                  placeholder="Número"
                 />
               </div>
             </div>
 
             <div className="cadastro-field">
-              <label htmlFor="rua">
-                Rua
-              </label>
-
+              <label htmlFor="rua">Rua</label>
               <input
-                type="text"
                 id="rua"
                 name="rua"
-                placeholder="Rua"
+                type="text"
                 value={form.rua}
-                readOnly
+                onChange={handleChange}
+                placeholder="Rua ou avenida"
                 required
               />
             </div>
 
             <div className="cadastro-field">
-              <label htmlFor="bairro">
-                Bairro
-              </label>
-
+              <label htmlFor="bairro">Bairro</label>
               <input
-                type="text"
                 id="bairro"
                 name="bairro"
-                placeholder="Bairro"
+                type="text"
                 value={form.bairro}
-                readOnly
+                onChange={handleChange}
+                placeholder="Bairro"
                 required
               />
             </div>
 
             <div className="cadastro-row">
               <div className="cadastro-field">
-                <label htmlFor="cidade">
-                  Cidade
-                </label>
-
+                <label htmlFor="cidade">Cidade</label>
                 <input
-                  type="text"
                   id="cidade"
                   name="cidade"
-                  placeholder="Cidade"
+                  type="text"
                   value={form.cidade}
-                  readOnly
+                  onChange={handleChange}
+                  placeholder="Cidade"
                   required
                 />
               </div>
 
               <div className="cadastro-field">
-                <label htmlFor="estado">
-                  Estado
-                </label>
-
+                <label htmlFor="estado">Estado</label>
                 <input
-                  type="text"
                   id="estado"
                   name="estado"
-                  placeholder="UF"
+                  type="text"
                   value={form.estado}
-                  readOnly
+                  onChange={handleChange}
+                  placeholder="UF"
+                  maxLength={2}
                   required
                 />
               </div>
@@ -680,17 +584,14 @@ function Cadastro() {
             <h2>Senha</h2>
 
             <div className="cadastro-field">
-              <label htmlFor="senha">
-                Senha
-              </label>
-
+              <label htmlFor="senha">Senha</label>
               <input
-                type="password"
                 id="senha"
                 name="senha"
-                placeholder="Crie uma senha"
+                type="password"
                 value={form.senha}
                 onChange={handleChange}
+                placeholder="Crie uma senha"
                 minLength={6}
                 required
               />
@@ -700,14 +601,13 @@ function Cadastro() {
               <label htmlFor="confirmarSenha">
                 Confirmar senha
               </label>
-
               <input
-                type="password"
                 id="confirmarSenha"
                 name="confirmarSenha"
-                placeholder="Digite a senha novamente"
+                type="password"
                 value={form.confirmarSenha}
                 onChange={handleChange}
+                placeholder="Digite a senha novamente"
                 minLength={6}
                 required
               />
@@ -719,18 +619,13 @@ function Cadastro() {
             className="cadastro-submit"
             disabled={carregando || buscandoCep}
           >
-            {carregando
-              ? "Criando conta..."
-              : "Criar conta"}
+            {carregando ? "Criando conta..." : "Criar conta"}
           </button>
         </form>
 
         <div className="login-link">
           <span>Já possui uma conta?</span>
-
-          <Link to="/login">
-            Entrar
-          </Link>
+          <Link to="/login">Entrar</Link>
         </div>
       </div>
     </div>

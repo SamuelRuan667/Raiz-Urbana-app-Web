@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import API_URL from "../services/api";
 import "./PropostaParceria.css";
 
 function PropostaParceria() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     razaoSocial: "",
     nomeFantasia: "",
@@ -267,23 +269,61 @@ function PropostaParceria() {
         descricao: form.descricao.trim(),
       };
 
-      console.log(
-        "Proposta preparada:",
-        dadosProposta
+      const token =
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token");
+
+      if (!token) {
+        alert("Sua sessão expirou. Faça login para enviar a proposta.");
+        navigate("/login", {
+          state: { from: "/parcerias/proposta" },
+        });
+        return;
+      }
+
+      const resposta = await fetch(
+        `${API_URL.replace(/\/$/, "")}/api/propostas-parceria`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(dadosProposta),
+        }
       );
 
-      alert(
-        "Formulário preenchido com sucesso. Na próxima etapa vamos conectar o envio ao backend."
-      );
+      const resultado = await resposta.json().catch(() => ({}));
+
+      if (!resposta.ok) {
+        if (resposta.status === 401) {
+          throw new Error("Sua sessão expirou. Faça login novamente.");
+        }
+
+        if (resposta.status === 403) {
+          throw new Error(
+            "Somente contas de empresas podem enviar propostas de parceria."
+          );
+        }
+
+        throw new Error(
+          resultado.erro ||
+            resultado.message ||
+            resultado.mensagem ||
+            `Não foi possível enviar a proposta (erro ${resposta.status}).`
+        );
+      }
+
+      navigate("/parcerias/proposta/enviada", {
+        replace: true,
+        state: {
+          propostaId: resultado.id,
+          status: resultado.status,
+        },
+      });
     } catch (erro) {
-      console.error(
-        "Erro ao preparar proposta:",
-        erro
-      );
-
-      alert(
-        "Não foi possível preparar a proposta."
-      );
+      console.error("Erro ao enviar proposta:", erro);
+      alert(erro.message || "Não foi possível enviar a proposta.");
     } finally {
       setEnviando(false);
     }

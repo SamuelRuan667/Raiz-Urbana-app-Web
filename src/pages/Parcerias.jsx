@@ -1,7 +1,72 @@
+
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Parcerias.css";
 
 function Parcerias() {
+  const [mensagem, setMensagem] = useState("");
+
+  const obterUsuarioLogado = () => {
+    const usuarioSalvo =
+      sessionStorage.getItem("usuarioLogado") ||
+      localStorage.getItem("usuarioLogado");
+
+    const token =
+      sessionStorage.getItem("token") ||
+      localStorage.getItem("token");
+
+    if (!usuarioSalvo || !token) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(usuarioSalvo);
+    } catch {
+      return null;
+    }
+  };
+
+  const usuarioLogado = obterUsuarioLogado();
+
+  const empresaAutorizada =
+    usuarioLogado?.tipo === "EMPRESA_PARCEIRA";
+
+  const visitante = !usuarioLogado;
+
+  const destinoProposta = empresaAutorizada
+    ? "/parcerias/proposta"
+    : visitante
+    ? "/login"
+    : null;
+
+  const handleAcessoProposta = (event) => {
+    if (destinoProposta) {
+      setMensagem("");
+      return;
+    }
+
+    event.preventDefault();
+
+    setMensagem(
+      "Para enviar uma proposta, é necessário utilizar uma conta do tipo Empresa Parceira. Se sua empresa ainda não possui uma conta, faça o cadastro empresarial."
+    );
+  };
+
+  const BotaoProposta = ({ children }) => (
+    <Link
+      to={destinoProposta || "/parcerias"}
+      state={
+        visitante
+          ? { from: "/parcerias/proposta" }
+          : undefined
+      }
+      className="parcerias-btn-primary"
+      onClick={handleAcessoProposta}
+    >
+      {children}
+    </Link>
+  );
+
   return (
     <main className="parcerias-page">
       <section className="parcerias-hero">
@@ -20,12 +85,19 @@ function Parcerias() {
             melhoria dos espaços urbanos.
           </p>
 
-          <Link
-            to="/parcerias/proposta"
-            className="parcerias-btn-primary"
-          >
+          <BotaoProposta>
             Quero ser parceiro →
-          </Link>
+          </BotaoProposta>
+
+          {mensagem && (
+            <div role="alert">
+              <p>{mensagem}</p>
+
+              <Link to="/cadastro">
+                Criar conta empresarial →
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="parcerias-hero-icon">
@@ -189,12 +261,9 @@ function Parcerias() {
             </p>
           </div>
 
-          <Link
-            to="/parcerias/proposta"
-            className="parcerias-btn-primary"
-          >
+          <BotaoProposta>
             Enviar proposta →
-          </Link>
+          </BotaoProposta>
         </div>
       </section>
     </main>
