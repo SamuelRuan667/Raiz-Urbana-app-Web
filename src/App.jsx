@@ -8,6 +8,7 @@ import {
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Chatbot from "./components/Chatbot";
 
 import Home from "./pages/Home";
 import SolicitarPlantio from "./pages/SolicitarPlantio";
@@ -250,6 +251,8 @@ function App() {
         </main>
 
         <Footer />
+
+        <Chatbot />
       </div>
     </BrowserRouter>
   );
