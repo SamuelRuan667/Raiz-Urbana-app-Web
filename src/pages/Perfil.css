@@ -480,3 +480,235 @@
     font-size: 21px;
   }
 }
+
+.perfil-propostas {
+  margin-bottom: 24px;
+  padding: 32px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(32, 53, 42, 0.07);
+}
+
+.perfil-propostas-descricao {
+  margin: 8px 0 0;
+  color: #687168;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.perfil-propostas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.perfil-proposta-item {
+  padding: 22px;
+  border: 1px solid #e2e8df;
+  border-radius: 12px;
+  background: #fafbf7;
+}
+
+.perfil-proposta-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.perfil-proposta-empresa {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+}
+
+.perfil-proposta-icone {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f1e4;
+  border-radius: 50%;
+  font-size: 21px;
+}
+
+.perfil-proposta-empresa h3 {
+  margin: 0 0 6px;
+  color: #20352a;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.perfil-proposta-empresa p {
+  margin: 0;
+  color: #687168;
+  font-size: 13px;
+}
+
+.perfil-proposta-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.perfil-proposta-status-pendente {
+  background: #fff1df;
+  color: #b86b32;
+}
+
+.perfil-proposta-status-aprovada {
+  background: #e8f1e4;
+  color: #355f3c;
+}
+
+.perfil-proposta-status-rejeitada {
+  background: #fbe9e7;
+  color: #9d4038;
+}
+
+.perfil-proposta-datas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 18px;
+  color: #687168;
+  font-size: 12px;
+}
+
+.perfil-proposta-feedback {
+  margin-top: 18px;
+  padding: 16px;
+  border-left: 4px solid #b86b32;
+  border-radius: 6px;
+  background: #fff8f1;
+}
+
+.perfil-proposta-feedback strong {
+  color: #20352a;
+  font-size: 13px;
+}
+
+.perfil-proposta-feedback p {
+  margin: 8px 0 0;
+  color: #59635c;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.perfil-proposta-aviso,
+.perfil-proposta-sucesso {
+  margin: 16px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.perfil-proposta-aviso {
+  color: #95602f;
+}
+
+.perfil-proposta-sucesso {
+  color: #355f3c;
+}
+
+.perfil-propostas-vazio {
+  padding: 32px 20px;
+  border: 1px dashed #d5ddd4;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.perfil-propostas-vazio-icone {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 32px;
+}
+
+.perfil-propostas-vazio h3 {
+  margin: 0 0 8px;
+  color: #20352a;
+  font-size: 17px;
+}
+
+.perfil-propostas-vazio p {
+  max-width: 480px;
+  margin: 0 auto 18px;
+  color: #687168;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.perfil-propostas-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  background: #355f3c;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.perfil-propostas-link:hover {
+  background: #294b30;
+  color: #ffffff;
+}
+
+.perfil-propostas-mensagem {
+  margin: 0;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.perfil-propostas-erro {
+  background: #fbe9e7;
+  color: #9d4038;
+}
+
+.perfil-lista-vazia {
+  padding: 15px 0;
+  color: #687168;
+}
+
+@media (max-width: 750px) {
+  .perfil-propostas {
+    padding: 24px;
+  }
+
+  .perfil-proposta-cabecalho {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .perfil-proposta-status {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 500px) {
+  .perfil-propostas {
+    padding: 20px;
+  }
+
+  .perfil-proposta-item {
+    padding: 16px;
+  }
+
+  .perfil-proposta-empresa {
+    align-items: flex-start;
+  }
+}

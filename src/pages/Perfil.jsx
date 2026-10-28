@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import API_URL from "../services/api";
-
 import "./Perfil.css";
 
 function Perfil() {
@@ -12,9 +10,13 @@ function Perfil() {
   const [solicitacoes, setSolicitacoes] = useState([]);
   const [carteira, setCarteira] = useState(null);
   const [movimentacoes, setMovimentacoes] = useState([]);
+  const [propostas, setPropostas] = useState([]);
+  const [erroPropostas, setErroPropostas] = useState("");
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
+    let ativo = true;
+
     async function carregarPerfil() {
       const usuarioSalvo =
         sessionStorage.getItem("usuarioLogado") ||
@@ -27,10 +29,8 @@ function Perfil() {
       if (!usuarioSalvo || !token) {
         sessionStorage.removeItem("usuarioLogado");
         sessionStorage.removeItem("token");
-
         localStorage.removeItem("usuarioLogado");
         localStorage.removeItem("token");
-
         navigate("/login");
         return;
       }
@@ -50,173 +50,106 @@ function Perfil() {
 
         setUsuario(usuarioLogado);
 
-        try {
-          const respostaUsuario = await fetch(
-            `${API_URL}/api/usuarios/${usuarioLogado.id}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+        const requisicao = async (caminho) =>
+          fetch(`${API_URL}${caminho}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          });
 
-          if (respostaUsuario.ok) {
-            const dadosUsuario =
-              await respostaUsuario.json();
+        const resultados = await Promise.allSettled([
+          requisicao(`/api/usuarios/${usuarioLogado.id}`),
+          requisicao(`/api/solicitacoes/usuario/${usuarioLogado.id}`),
+          requisicao("/api/carteiras-capiba/minha"),
+          requisicao("/api/carteiras-capiba/minha/movimentacoes"),
+          requisicao("/api/propostas-parceria/minhas"),
+        ]);
 
-            setUsuario(dadosUsuario);
-          } else {
-            console.error(
-              "Erro ao carregar usuário. Status:",
-              respostaUsuario.status
-            );
-          }
-        } catch (erro) {
-          console.error(
-            "Erro ao carregar dados completos do usuário:",
-            erro
-          );
+        if (!ativo) return;
+
+        const [usuarioResultado, solicitacoesResultado, carteiraResultado, movimentacoesResultado, propostasResultado] =
+          resultados;
+
+        if (
+          usuarioResultado.status === "fulfilled" &&
+          usuarioResultado.value.ok
+        ) {
+          setUsuario(await usuarioResultado.value.json());
         }
 
-        try {
-          const respostaSolicitacoes = await fetch(
-            `${API_URL}/api/solicitacoes/usuario/${usuarioLogado.id}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          if (respostaSolicitacoes.ok) {
-            const dadosSolicitacoes =
-              await respostaSolicitacoes.json();
-
-            setSolicitacoes(
-              Array.isArray(dadosSolicitacoes)
-                ? dadosSolicitacoes
-                : []
-            );
-          } else {
-            console.error(
-              "Erro ao carregar solicitações. Status:",
-              respostaSolicitacoes.status
-            );
-
-            setSolicitacoes([]);
-          }
-        } catch (erro) {
-          console.error(
-            "Erro ao carregar solicitações:",
-            erro
-          );
-
+        if (
+          solicitacoesResultado.status === "fulfilled" &&
+          solicitacoesResultado.value.ok
+        ) {
+          const dados = await solicitacoesResultado.value.json();
+          setSolicitacoes(Array.isArray(dados) ? dados : []);
+        } else {
           setSolicitacoes([]);
         }
 
-        try {
-          const respostaCarteira = await fetch(
-            `${API_URL}/api/carteiras-capiba/minha`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          if (respostaCarteira.ok) {
-            const dadosCarteira =
-              await respostaCarteira.json();
-
-            setCarteira(dadosCarteira);
-          } else {
-            console.error(
-              "Erro ao carregar Carteira Capiba. Status:",
-              respostaCarteira.status
-            );
-
-            setCarteira(null);
-          }
-        } catch (erro) {
-          console.error(
-            "Erro ao carregar Carteira Capiba:",
-            erro
-          );
-
+        if (
+          carteiraResultado.status === "fulfilled" &&
+          carteiraResultado.value.ok
+        ) {
+          setCarteira(await carteiraResultado.value.json());
+        } else {
           setCarteira(null);
         }
 
-        try {
-          const respostaMovimentacoes = await fetch(
-            `${API_URL}/api/carteiras-capiba/minha/movimentacoes`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          if (respostaMovimentacoes.ok) {
-            const dadosMovimentacoes =
-              await respostaMovimentacoes.json();
-
-            setMovimentacoes(
-              Array.isArray(dadosMovimentacoes)
-                ? dadosMovimentacoes
-                : []
-            );
-          } else {
-            console.error(
-              "Erro ao carregar movimentações. Status:",
-              respostaMovimentacoes.status
-            );
-
-            setMovimentacoes([]);
-          }
-        } catch (erro) {
-          console.error(
-            "Erro ao carregar movimentações:",
-            erro
-          );
-
+        if (
+          movimentacoesResultado.status === "fulfilled" &&
+          movimentacoesResultado.value.ok
+        ) {
+          const dados = await movimentacoesResultado.value.json();
+          setMovimentacoes(Array.isArray(dados) ? dados : []);
+        } else {
           setMovimentacoes([]);
         }
+
+        if (
+          propostasResultado.status === "fulfilled" &&
+          propostasResultado.value.ok
+        ) {
+          const dados = await propostasResultado.value.json();
+          setPropostas(Array.isArray(dados) ? dados : []);
+          setErroPropostas("");
+        } else {
+          setPropostas([]);
+          setErroPropostas(
+            "Não foi possível carregar suas propostas. Tente novamente mais tarde."
+          );
+        }
       } catch (erro) {
-        console.error(
-          "Erro ao carregar perfil:",
-          erro
-        );
+        console.error("Erro ao carregar perfil:", erro);
 
-        sessionStorage.removeItem("usuarioLogado");
-        sessionStorage.removeItem("token");
-
-        localStorage.removeItem("usuarioLogado");
-        localStorage.removeItem("token");
-
-        navigate("/login");
+        if (ativo) {
+          setErroPropostas(
+            "Ocorreu um erro ao carregar os dados do perfil."
+          );
+        }
       } finally {
-        setCarregando(false);
+        if (ativo) {
+          setCarregando(false);
+        }
       }
     }
 
     carregarPerfil();
+
+    return () => {
+      ativo = false;
+    };
   }, [navigate]);
 
   const sairDaConta = () => {
     sessionStorage.removeItem("usuarioLogado");
     sessionStorage.removeItem("token");
-
     localStorage.removeItem("usuarioLogado");
     localStorage.removeItem("token");
 
-    window.dispatchEvent(
-      new Event("usuarioLogadoAtualizado")
-    );
-
+    window.dispatchEvent(new Event("usuarioLogadoAtualizado"));
     navigate("/login");
   };
 
@@ -235,59 +168,97 @@ function Perfil() {
       solicitacao.status === "APROVADO"
   ).length;
 
-  const saldoCapiba =
-    carteira?.saldo ?? 0;
+  const saldoCapiba = carteira?.saldo ?? 0;
 
-  const traduzirStatus = (status) => {
+  const traduzirStatusSolicitacao = (status) => {
+    switch (status) {
+      case "PENDENTE":
+        return { texto: "Pendente", classe: "status-pendente" };
+      case "EM_ANALISE":
+        return { texto: "Em análise", classe: "status-em_analise" };
+      case "VISITA_AGENDADA":
+        return { texto: "Visita agendada", classe: "status-visita_agendada" };
+      case "APROVADO":
+        return { texto: "Aprovado", classe: "status-aprovado" };
+      case "RECUSADO":
+        return { texto: "Recusado", classe: "status-recusado" };
+      case "CONCLUIDO":
+        return { texto: "Concluído", classe: "status-concluido" };
+      default:
+        return { texto: status || "Pendente", classe: "status-pendente" };
+    }
+  };
+
+  const traduzirStatusProposta = (status) => {
     switch (status) {
       case "PENDENTE":
         return {
           texto: "Pendente",
-          classe: "status-pendente",
+          classe: "perfil-proposta-status-pendente",
         };
-
-      case "EM_ANALISE":
+      case "APROVADA":
         return {
-          texto: "Em análise",
-          classe: "status-em_analise",
+          texto: "Aprovada",
+          classe: "perfil-proposta-status-aprovada",
         };
-
-      case "VISITA_AGENDADA":
+      case "REJEITADA":
         return {
-          texto: "Visita agendada",
-          classe: "status-visita_agendada",
+          texto: "Rejeitada",
+          classe: "perfil-proposta-status-rejeitada",
         };
-
-      case "APROVADO":
-        return {
-          texto: "Aprovado",
-          classe: "status-aprovado",
-        };
-
-      case "RECUSADO":
-        return {
-          texto: "Recusado",
-          classe: "status-recusado",
-        };
-
-      case "CONCLUIDO":
-        return {
-          texto: "Concluído",
-          classe: "status-concluido",
-        };
-
       default:
         return {
-          texto: status || "Pendente",
-          classe: "status-pendente",
+          texto: status || "Não informado",
+          classe: "perfil-proposta-status-pendente",
         };
     }
   };
 
-  const formatarEndereco = () => {
-    if (!usuario) {
+  const traduzirTipoParceria = (proposta) => {
+    const tipo =
+      proposta.tipoParceria ||
+      proposta.tipo ||
+      proposta.proposta?.match(/Tipo de parceria:\s*(.+)/i)?.[1];
+
+    const tipos = {
+      BENEFICIOS: "Benefícios e descontos",
+      PATROCINIO: "Patrocínio",
+      APOIO_AMBIENTAL: "Apoio ambiental",
+      DOACAO: "Doação",
+      OUTRO: "Outro",
+    };
+
+    return tipos[tipo] || tipo || "Parceria";
+  };
+
+  const formatarData = (data) => {
+    if (!data) return "Não informada";
+
+    const dataValida = new Date(data);
+
+    if (Number.isNaN(dataValida.getTime())) {
+      return data;
+    }
+
+    return dataValida.toLocaleDateString("pt-BR", {
+      timeZone: "UTC",
+    });
+  };
+
+  const formatarDataMovimentacao = (data) => {
+    if (!data) return "-";
+
+    const dataValida = new Date(data);
+
+    if (Number.isNaN(dataValida.getTime())) {
       return "-";
     }
+
+    return dataValida.toLocaleString("pt-BR");
+  };
+
+  const formatarEndereco = () => {
+    if (!usuario) return "-";
 
     const endereco = [
       usuario.rua,
@@ -297,25 +268,7 @@ function Perfil() {
       usuario.estado,
     ].filter(Boolean);
 
-    if (endereco.length === 0) {
-      return "-";
-    }
-
-    return endereco.join(", ");
-  };
-
-  const formatarDataMovimentacao = (data) => {
-    if (!data) {
-      return "-";
-    }
-
-    return new Date(data).toLocaleString(
-      "pt-BR",
-      {
-        dateStyle: "short",
-        timeStyle: "short",
-      }
-    );
+    return endereco.length ? endereco.join(", ") : "-";
   };
 
   if (carregando) {
@@ -328,37 +281,24 @@ function Perfil() {
     );
   }
 
-  if (!usuario) {
-    return null;
-  }
+  if (!usuario) return null;
 
   return (
     <main className="perfil-page">
       <div className="perfil-container">
         <section className="perfil-card perfil-principal">
-          <div className="perfil-avatar">
-            👤
-          </div>
+          <div className="perfil-avatar">👤</div>
 
           <div className="perfil-info">
-            <span className="perfil-label">
-              Meu perfil
-            </span>
-
-            <h1>
-              {usuario.nomeCompleto || "Usuário"}
-            </h1>
-
+            <span className="perfil-label">Meu perfil</span>
+            <h1>{usuario.nomeCompleto || "Usuário"}</h1>
             <p>
               Acompanhe seus dados e suas solicitações de plantio.
             </p>
           </div>
 
           <div className="perfil-acoes">
-            <Link
-              to="/perfil/editar"
-              className="perfil-editar"
-            >
+            <Link to="/perfil/editar" className="perfil-editar">
               Editar perfil
             </Link>
 
@@ -380,99 +320,60 @@ function Perfil() {
           <div className="perfil-dados-grid">
             <div className="perfil-dado">
               <span>Nome completo</span>
-
-              <strong>
-                {usuario.nomeCompleto || "-"}
-              </strong>
+              <strong>{usuario.nomeCompleto || "-"}</strong>
             </div>
 
             <div className="perfil-dado">
               <span>CPF</span>
-
-              <strong>
-                {usuario.cpf || "-"}
-              </strong>
+              <strong>{usuario.cpf || "-"}</strong>
             </div>
 
             <div className="perfil-dado">
               <span>E-mail</span>
-
-              <strong>
-                {usuario.email || "-"}
-              </strong>
+              <strong>{usuario.email || "-"}</strong>
             </div>
 
             <div className="perfil-dado">
               <span>Telefone</span>
-
-              <strong>
-                {usuario.telefone || "-"}
-              </strong>
+              <strong>{usuario.telefone || "-"}</strong>
             </div>
 
             <div className="perfil-dado perfil-dado-largo">
               <span>Endereço</span>
-
-              <strong>
-                {formatarEndereco()}
-              </strong>
+              <strong>{formatarEndereco()}</strong>
             </div>
           </div>
         </section>
 
         <section className="perfil-resumo">
           <div className="perfil-resumo-card">
-            <div className="perfil-resumo-icon">
-              🌱
-            </div>
-
+            <div className="perfil-resumo-icon">🌱</div>
             <div>
-              <strong>
-                {totalSolicitacoes}
-              </strong>
-
+              <strong>{totalSolicitacoes}</strong>
               <p>Solicitações</p>
             </div>
           </div>
 
           <div className="perfil-resumo-card">
-            <div className="perfil-resumo-icon">
-              🔎
-            </div>
-
+            <div className="perfil-resumo-icon">🔎</div>
             <div>
-              <strong>
-                {totalEmAnalise}
-              </strong>
-
+              <strong>{totalEmAnalise}</strong>
               <p>Em análise</p>
             </div>
           </div>
 
           <div className="perfil-resumo-card">
-            <div className="perfil-resumo-icon">
-              🌳
-            </div>
-
+            <div className="perfil-resumo-icon">🌳</div>
             <div>
-              <strong>
-                {totalConcluidas}
-              </strong>
-
+              <strong>{totalConcluidas}</strong>
               <p>Concluídas</p>
             </div>
           </div>
 
           <div className="perfil-resumo-card">
-            <div className="perfil-resumo-icon">
-              ⭐
-            </div>
-
+            <div className="perfil-resumo-icon">⭐</div>
             <div>
-              <strong>
-                {saldoCapiba}
-              </strong>
-
+              <strong>{saldoCapiba}</strong>
               <p>Moedas Capiba</p>
             </div>
           </div>
@@ -481,31 +382,21 @@ function Perfil() {
         <section className="perfil-dados-card">
           <div className="perfil-section-header">
             <h2>Carteira Capiba</h2>
-
-            <Link
-              to="/recompensas"
-              className="perfil-ver-detalhes"
-            >
+            <Link to="/recompensas" className="perfil-ver-detalhes">
               Ver recompensas
             </Link>
           </div>
 
           <div className="perfil-carteira-saldo">
             <span>Saldo disponível</span>
-
-            <strong>
-              ⭐ {saldoCapiba} Moedas Capiba
-            </strong>
-
+            <strong>⭐ {saldoCapiba} Moedas Capiba</strong>
             <p>
               Ganhe 20 moedas quando uma solicitação de plantio for concluída.
             </p>
           </div>
 
           <div className="perfil-movimentacoes">
-            <h3>
-              Histórico de movimentações
-            </h3>
+            <h3>Histórico de movimentações</h3>
 
             {movimentacoes.length === 0 ? (
               <p className="perfil-sem-movimentacoes">
@@ -518,14 +409,9 @@ function Perfil() {
                   className="perfil-movimentacao-item"
                 >
                   <div>
-                    <strong>
-                      {movimentacao.descricao}
-                    </strong>
-
+                    <strong>{movimentacao.descricao}</strong>
                     <span>
-                      {formatarDataMovimentacao(
-                        movimentacao.createdAt
-                      )}
+                      {formatarDataMovimentacao(movimentacao.createdAt)}
                     </span>
                   </div>
 
@@ -536,9 +422,7 @@ function Perfil() {
                         : "movimentacao-saida"
                     }
                   >
-                    {movimentacao.tipo === "ENTRADA"
-                      ? "+"
-                      : "-"}
+                    {movimentacao.tipo === "ENTRADA" ? "+" : "-"}
                     {movimentacao.quantidade}
                   </strong>
                 </div>
@@ -547,25 +431,120 @@ function Perfil() {
           </div>
         </section>
 
+        <section className="perfil-propostas">
+          <div className="perfil-section-header">
+            <div>
+              <h2>Minhas propostas de parceria</h2>
+              <p className="perfil-propostas-descricao">
+                Acompanhe a análise das propostas enviadas ao Raiz Urbana.
+              </p>
+            </div>
+          </div>
+
+          {erroPropostas ? (
+            <p className="perfil-propostas-mensagem perfil-propostas-erro">
+              {erroPropostas}
+            </p>
+          ) : propostas.length === 0 ? (
+            <div className="perfil-propostas-vazio">
+              <span className="perfil-propostas-vazio-icone">🤝</span>
+              <h3>Nenhuma proposta encontrada</h3>
+              <p>
+                Quando você enviar uma proposta de parceria, poderá acompanhar
+                o andamento dela nesta seção.
+              </p>
+              <Link to="/proposta-parceria" className="perfil-propostas-link">
+                Enviar proposta de parceria
+              </Link>
+            </div>
+          ) : (
+            <div className="perfil-propostas-lista">
+              {propostas.map((proposta) => {
+                const statusInfo = traduzirStatusProposta(proposta.status);
+
+                return (
+                  <article
+                    key={proposta.id}
+                    className="perfil-proposta-item"
+                  >
+                    <div className="perfil-proposta-cabecalho">
+                      <div className="perfil-proposta-empresa">
+                        <span className="perfil-proposta-icone">🏢</span>
+                        <div>
+                          <h3>
+                            {proposta.nomeFantasia ||
+                              proposta.razaoSocial ||
+                              "Proposta de parceria"}
+                          </h3>
+                          <p>{traduzirTipoParceria(proposta)}</p>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`perfil-proposta-status ${statusInfo.classe}`}
+                      >
+                        {statusInfo.texto}
+                      </span>
+                    </div>
+
+                    <div className="perfil-proposta-datas">
+                      <span>
+                        Enviada em: {formatarData(proposta.dataEnvio)}
+                      </span>
+
+                      {proposta.dataAnalise && (
+                        <span>
+                          Analisada em: {formatarData(proposta.dataAnalise)}
+                        </span>
+                      )}
+                    </div>
+
+                    {proposta.feedback && (
+                      <div className="perfil-proposta-feedback">
+                        <strong>Feedback da análise</strong>
+                        <p>{proposta.feedback}</p>
+                      </div>
+                    )}
+
+                    {proposta.status === "PENDENTE" && (
+                      <p className="perfil-proposta-aviso">
+                        Sua proposta está aguardando análise pela equipe.
+                      </p>
+                    )}
+
+                    {proposta.status === "APROVADA" && (
+                      <p className="perfil-proposta-sucesso">
+                        Sua proposta foi aprovada. Obrigado por apoiar o
+                        Raiz Urbana!
+                      </p>
+                    )}
+
+                    {proposta.status === "REJEITADA" && (
+                      <p className="perfil-proposta-aviso">
+                        Sua proposta foi rejeitada. Consulte o feedback acima
+                        para conhecer a justificativa, caso tenha sido informada.
+                      </p>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
         <section className="perfil-solicitacoes">
           <div className="perfil-section-header">
             <h2>Minhas solicitações</h2>
           </div>
 
           {solicitacoes.length === 0 && (
-            <p
-              style={{
-                color: "#687168",
-                padding: "15px 0",
-              }}
-            >
+            <p className="perfil-lista-vazia">
               Nenhuma solicitação enviada ainda.
             </p>
           )}
 
           {solicitacoes.map((item) => {
-            const statusInfo =
-              traduzirStatus(item.status);
+            const statusInfo = traduzirStatusSolicitacao(item.status);
 
             return (
               <div
@@ -579,8 +558,7 @@ function Perfil() {
 
                   <h3>
                     Plantio em{" "}
-                    {item.ruaAvenida ||
-                      "Solicitação de plantio"}
+                    {item.ruaAvenida || "Solicitação de plantio"}
                   </h3>
 
                   <p>
@@ -591,9 +569,7 @@ function Perfil() {
                 </div>
 
                 <div className="perfil-solicitacao-acoes">
-                  <span
-                    className={`status ${statusInfo.classe}`}
-                  >
+                  <span className={`status ${statusInfo.classe}`}>
                     {statusInfo.texto}
                   </span>
 

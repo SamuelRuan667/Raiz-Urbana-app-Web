@@ -1,59 +1,230 @@
-import { useState } from "react";
+
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import "./AdminPropostaDetalhes.css";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
+function obterToken() {
+  return localStorage.getItem("token") || sessionStorage.getItem("token");
+}
+
+function formatarData(data) {
+  if (!data) return "Não informada";
+
+  const dataValida = new Date(data);
+
+  if (Number.isNaN(dataValida.getTime())) return "Não informada";
+
+  return dataValida.toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
+function formatarCNPJ(cnpj) {
+  const numeros = (cnpj || "").replace(/\D/g, "");
+
+  if (numeros.length !== 14) return cnpj || "Não informado";
+
+  return numeros.replace(
+    /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+    "$1.$2.$3/$4-$5"
+  );
+}
+
+function formatarTelefone(telefone) {
+  const numeros = (telefone || "").replace(/\D/g, "");
+
+  if (numeros.length === 11) {
+    return numeros.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+  }
+
+  if (numeros.length === 10) {
+    return numeros.replace(/^(\d{2})(\d{4})(\d{4})$/, "($1) $2-$3");
+  }
+
+  return telefone || "Não informado";
+}
+
+function formatarCEP(cep) {
+  const numeros = (cep || "").replace(/\D/g, "");
+
+  if (numeros.length === 8) {
+    return numeros.replace(/^(\d{5})(\d{3})$/, "$1-$2");
+  }
+
+  return cep || "Não informado";
+}
+
+function extrairProposta(texto = "") {
+  const tipo = texto.match(/Tipo de parceria:\s*([^\n]+)/i);
+  const descricao = texto.match(/Descrição:\s*([\s\S]*)/i);
+
+  return {
+    tipoParceria: tipo?.[1]?.trim() || "Não informado",
+    descricao: descricao?.[1]?.trim() || texto || "Nenhuma descrição informada.",
+  };
+}
+
+function traduzirTipo(tipo) {
+  const tipos = {
+    BENEFICIOS: "Benefícios e descontos",
+    PATROCINIO: "Patrocínio",
+    APOIO_AMBIENTAL: "Apoio a ações ambientais",
+    DOACAO: "Doação de materiais ou recursos",
+    OUTRO: "Outro",
+  };
+
+  return tipos[tipo] || tipo || "Não informado";
+}
 
 function AdminPropostaDetalhes() {
   const { id } = useParams();
 
-  const [status, setStatus] = useState("PENDENTE");
+  const [proposta, setProposta] = useState(null);
+  const [carregando, setCarregando] = useState(true);
   const [processando, setProcessando] = useState(false);
+  const [erro, setErro] = useState("");
   const [motivoRecusa, setMotivoRecusa] = useState("");
   const [mostrarRecusa, setMostrarRecusa] = useState(false);
 
-  const proposta = {
-    id,
-    razaoSocial: "Empresa Exemplo LTDA",
-    nomeFantasia: "Empresa Exemplo",
-    cnpj: "00.000.000/0001-00",
-    responsavel: "Responsável Exemplo",
-    email: "empresa@exemplo.com",
-    telefone: "(81) 99999-9999",
-    cep: "50030-230",
-    rua: "Rua do Exemplo",
-    numero: "100",
-    bairro: "Recife Antigo",
-    cidade: "Recife",
-    estado: "PE",
-    tipoParceria: "Apoio a ações ambientais",
-    descricao:
-      "Nossa empresa deseja apoiar ações ambientais realizadas pelo Raiz Urbana e contribuir com iniciativas de arborização na cidade.",
-    dataEnvio: "24/09/2026",
-  };
+  const carregarProposta = useCallback(async () => {
+    try {
+      setCarregando(true);
+      setErro("");
 
-  const aprovarProposta = () => {
-    const confirmar = window.confirm(
-      `Deseja aprovar a proposta da empresa ${proposta.nomeFantasia}?`
-    );
+      const token = obterToken();
 
-    if (!confirmar) {
+      if (!token) {
+        throw new Error("Sua sessão expirou. Faça login novamente.");
+      }
+
+      const resposta = await fetch(
+        `${API_URL.replace(/\/$/, "")}/api/propostas-parceria/admin/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const resultado = await resposta.json().catch(() => ({}));
+
+      if (!resposta.ok) {
+        if (resposta.status === 401) {
+          throw new Error("Sua sessão expirou. Faça login novamente.");
+        }
+
+        if (resposta.status === 403) {
+          throw new Error("Você não tem permissão para acessar esta proposta.");
+        }
+
+        throw new Error(
+          resultado.erro ||
+            resultado.message ||
+            "Não foi possível carregar os detalhes da proposta."
+        );
+      }
+
+      setProposta(resultado);
+    } catch (e) {
+      setErro(e.message || "Não foi possível carregar a proposta.");
+    } finally {
+      setCarregando(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    carregarProposta();
+  }, [carregarProposta]);
+
+  const executarAnalise = async (acao) => {
+    if (!proposta || processando) return;
+
+    if (proposta.status !== "PENDENTE") {
+      alert("Esta proposta já foi analisada.");
       return;
     }
 
+    if (acao === "rejeitar" && !motivoRecusa.trim()) {
+      alert("Informe o motivo da rejeição.");
+      return;
+    }
+
+    const mensagem =
+      acao === "aprovar"
+        ? `Deseja aprovar a proposta da empresa ${proposta.nomeFantasia || proposta.razaoSocial}?`
+        : "Deseja realmente rejeitar esta proposta?";
+
+    if (!window.confirm(mensagem)) return;
+
     try {
       setProcessando(true);
+      setErro("");
 
-      setStatus("APROVADA");
+      const token = obterToken();
+
+      if (!token) {
+        throw new Error("Sua sessão expirou. Faça login novamente.");
+      }
+
+      const endpoint =
+        acao === "aprovar"
+          ? "aprovar"
+          : "rejeitar";
+
+      const resposta = await fetch(
+        `${API_URL.replace(/\/$/, "")}/api/propostas-parceria/admin/${id}/${endpoint}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          ...(acao === "rejeitar"
+            ? {
+                body: JSON.stringify({
+                  feedback: motivoRecusa.trim(),
+                }),
+              }
+            : {}),
+        }
+      );
+
+      const resultado = await resposta.json().catch(() => ({}));
+
+      if (!resposta.ok) {
+        if (resposta.status === 401) {
+          throw new Error("Sua sessão expirou. Faça login novamente.");
+        }
+
+        if (resposta.status === 403) {
+          throw new Error("Você não tem permissão para analisar propostas.");
+        }
+
+        throw new Error(
+          resultado.erro ||
+            resultado.message ||
+            "Não foi possível concluir a análise."
+        );
+      }
+
+      await carregarProposta();
+
       setMostrarRecusa(false);
       setMotivoRecusa("");
 
-      alert("Proposta aprovada com sucesso!");
+      alert(
+        acao === "aprovar"
+          ? "Proposta aprovada com sucesso!"
+          : "Proposta rejeitada com sucesso!"
+      );
+    } catch (e) {
+      setErro(e.message || "Não foi possível concluir a análise.");
     } finally {
       setProcessando(false);
     }
-  };
-
-  const abrirRecusa = () => {
-    setMostrarRecusa(true);
   };
 
   const cancelarRecusa = () => {
@@ -61,72 +232,77 @@ function AdminPropostaDetalhes() {
     setMotivoRecusa("");
   };
 
-  const recusarProposta = () => {
-    if (!motivoRecusa.trim()) {
-      alert("Informe o motivo da recusa.");
-      return;
-    }
-
-    const confirmar = window.confirm(
-      "Deseja realmente recusar esta proposta?"
+  if (carregando) {
+    return (
+      <main className="admin-detalhes-page">
+        <div className="admin-detalhes-container">
+          <p className="admin-detalhes-mensagem">Carregando proposta...</p>
+        </div>
+      </main>
     );
+  }
 
-    if (!confirmar) {
-      return;
-    }
+  if (erro && !proposta) {
+    return (
+      <main className="admin-detalhes-page">
+        <div className="admin-detalhes-container">
+          <div className="admin-detalhes-voltar">
+            <Link to="/admin/propostas">← Voltar para propostas</Link>
+          </div>
 
-    try {
-      setProcessando(true);
+          <div className="admin-detalhes-erro" role="alert">
+            <p>{erro}</p>
+            <button type="button" onClick={carregarProposta}>
+              Tentar novamente
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
-      setStatus("RECUSADA");
-      setMostrarRecusa(false);
-
-      alert("Proposta recusada.");
-    } finally {
-      setProcessando(false);
-    }
+  const dadosProposta = extrairProposta(proposta?.proposta);
+  const status = proposta?.status || "PENDENTE";
+  const statusTexto = {
+    PENDENTE: "Aguardando análise",
+    APROVADA: "Aprovada",
+    REJEITADA: "Rejeitada",
   };
 
-  const traduzirStatus = () => {
-    switch (status) {
-      case "APROVADA":
-        return "Aprovada";
-
-      case "RECUSADA":
-        return "Recusada";
-
-      default:
-        return "Aguardando análise";
-    }
+  const statusClasse = {
+    PENDENTE: "status-pendente",
+    APROVADA: "status-aprovada",
+    REJEITADA: "status-rejeitada",
   };
 
   return (
     <main className="admin-detalhes-page">
       <div className="admin-detalhes-container">
         <div className="admin-detalhes-voltar">
-          <Link to="/admin/propostas">
-            ← Voltar para propostas
-          </Link>
+          <Link to="/admin/propostas">← Voltar para propostas</Link>
         </div>
+
+        {erro && (
+          <div className="admin-detalhes-erro" role="alert">
+            {erro}
+          </div>
+        )}
 
         <section className="admin-detalhes-topo">
           <div>
             <span className="admin-detalhes-label">
-              Proposta #{id}
+              Proposta #{proposta.id}
             </span>
 
-            <h1>{proposta.nomeFantasia}</h1>
+            <h1>{proposta.nomeFantasia || proposta.razaoSocial}</h1>
 
             <p>
-              Analise os dados da empresa e a proposta enviada
-              para o Raiz Urbana.
+              Analise os dados da empresa e a proposta enviada para o Raiz Urbana.
             </p>
           </div>
 
-          <span
-            className={`admin-detalhes-status status-${status.toLowerCase()}`}
-          >
-            {traduzirStatus()}
+          <span className={`admin-detalhes-status ${statusClasse[status] || "status-pendente"}`}>
+            {statusTexto[status] || status}
           </span>
         </section>
 
@@ -136,32 +312,32 @@ function AdminPropostaDetalhes() {
           <div className="admin-detalhes-grid">
             <div className="admin-detalhes-dado">
               <span>Razão Social</span>
-              <strong>{proposta.razaoSocial}</strong>
+              <strong>{proposta.razaoSocial || "Não informado"}</strong>
             </div>
 
             <div className="admin-detalhes-dado">
               <span>Nome Fantasia</span>
-              <strong>{proposta.nomeFantasia}</strong>
+              <strong>{proposta.nomeFantasia || "Não informado"}</strong>
             </div>
 
             <div className="admin-detalhes-dado">
               <span>CNPJ</span>
-              <strong>{proposta.cnpj}</strong>
+              <strong>{formatarCNPJ(proposta.cnpj)}</strong>
             </div>
 
             <div className="admin-detalhes-dado">
               <span>Responsável</span>
-              <strong>{proposta.responsavel}</strong>
+              <strong>{proposta.responsavel || "Não informado"}</strong>
             </div>
 
             <div className="admin-detalhes-dado">
               <span>E-mail</span>
-              <strong>{proposta.email}</strong>
+              <strong>{proposta.email || "Não informado"}</strong>
             </div>
 
             <div className="admin-detalhes-dado">
               <span>Telefone</span>
-              <strong>{proposta.telefone}</strong>
+              <strong>{formatarTelefone(proposta.telefone)}</strong>
             </div>
           </div>
         </section>
@@ -172,7 +348,7 @@ function AdminPropostaDetalhes() {
           <div className="admin-detalhes-grid">
             <div className="admin-detalhes-dado">
               <span>CEP</span>
-              <strong>{proposta.cep}</strong>
+              <strong>{formatarCEP(proposta.cep)}</strong>
             </div>
 
             <div className="admin-detalhes-dado">
@@ -182,18 +358,19 @@ function AdminPropostaDetalhes() {
 
             <div className="admin-detalhes-dado admin-detalhes-largo">
               <span>Rua / Avenida</span>
-              <strong>{proposta.rua}</strong>
+              <strong>{proposta.rua || "Não informado"}</strong>
             </div>
 
             <div className="admin-detalhes-dado">
               <span>Bairro</span>
-              <strong>{proposta.bairro}</strong>
+              <strong>{proposta.bairro || "Não informado"}</strong>
             </div>
 
             <div className="admin-detalhes-dado">
               <span>Cidade / Estado</span>
               <strong>
-                {proposta.cidade} - {proposta.estado}
+                {[proposta.cidade, proposta.estado].filter(Boolean).join(" - ") ||
+                  "Não informado"}
               </strong>
             </div>
           </div>
@@ -205,18 +382,17 @@ function AdminPropostaDetalhes() {
           <div className="admin-detalhes-proposta">
             <div className="admin-detalhes-dado">
               <span>Tipo de parceria</span>
-              <strong>{proposta.tipoParceria}</strong>
+              <strong>{traduzirTipo(dadosProposta.tipoParceria)}</strong>
             </div>
 
             <div className="admin-detalhes-dado">
               <span>Data de envio</span>
-              <strong>{proposta.dataEnvio}</strong>
+              <strong>{formatarData(proposta.dataEnvio)}</strong>
             </div>
 
             <div className="admin-detalhes-descricao">
               <span>Descrição da proposta</span>
-
-              <p>{proposta.descricao}</p>
+              <p>{dadosProposta.descricao}</p>
             </div>
           </div>
         </section>
@@ -226,8 +402,8 @@ function AdminPropostaDetalhes() {
             <h2>Análise da proposta</h2>
 
             <p className="admin-analise-descricao">
-              Após conferir todas as informações, escolha se a
-              empresa será aprovada como parceira do Raiz Urbana.
+              Confira as informações e escolha se a empresa será aprovada como
+              parceira do Raiz Urbana.
             </p>
 
             {!mostrarRecusa && (
@@ -235,37 +411,36 @@ function AdminPropostaDetalhes() {
                 <button
                   type="button"
                   className="admin-recusar"
-                  onClick={abrirRecusa}
+                  onClick={() => setMostrarRecusa(true)}
                   disabled={processando}
                 >
-                  Recusar proposta
+                  Rejeitar proposta
                 </button>
 
                 <button
                   type="button"
                   className="admin-aprovar"
-                  onClick={aprovarProposta}
+                  onClick={() => executarAnalise("aprovar")}
                   disabled={processando}
                 >
-                  Aprovar proposta
+                  {processando ? "Processando..." : "Aprovar proposta"}
                 </button>
               </div>
             )}
 
             {mostrarRecusa && (
               <div className="admin-recusa-container">
-                <label htmlFor="motivoRecusa">
-                  Motivo da recusa
-                </label>
+                <label htmlFor="motivoRecusa">Motivo da rejeição</label>
 
                 <textarea
                   id="motivoRecusa"
                   value={motivoRecusa}
-                  onChange={(e) =>
-                    setMotivoRecusa(e.target.value)
-                  }
-                  placeholder="Explique o motivo da recusa da proposta..."
+                  onChange={(e) => setMotivoRecusa(e.target.value)}
+                  placeholder="Explique o motivo da rejeição da proposta..."
                   rows={5}
+                  maxLength={2000}
+                  required
+                  disabled={processando}
                 />
 
                 <div className="admin-recusa-acoes">
@@ -281,10 +456,10 @@ function AdminPropostaDetalhes() {
                   <button
                     type="button"
                     className="admin-confirmar-recusa"
-                    onClick={recusarProposta}
-                    disabled={processando}
+                    onClick={() => executarAnalise("rejeitar")}
+                    disabled={processando || !motivoRecusa.trim()}
                   >
-                    Confirmar recusa
+                    {processando ? "Processando..." : "Confirmar rejeição"}
                   </button>
                 </div>
               </div>
@@ -298,30 +473,33 @@ function AdminPropostaDetalhes() {
 
             <section>
               <strong>Empresa aprovada</strong>
-
               <p>
-                Esta empresa foi aprovada para participar do
-                programa de parceiros do Raiz Urbana.
+                Esta empresa foi aprovada para participar do programa de parceiros
+                do Raiz Urbana.
               </p>
+              {proposta.dataAnalise && (
+                <p>Data da análise: {formatarData(proposta.dataAnalise)}</p>
+              )}
             </section>
           </div>
         )}
 
-        {status === "RECUSADA" && (
+        {status === "REJEITADA" && (
           <div className="admin-resultado admin-resultado-recusado">
             <div>×</div>
 
             <section>
-              <strong>Proposta recusada</strong>
+              <strong>Proposta rejeitada</strong>
+              <p>Esta proposta foi rejeitada pela administração.</p>
 
-              <p>
-                Esta proposta foi recusada pela administração.
-              </p>
-
-              {motivoRecusa && (
+              {proposta.feedback && (
                 <p>
-                  <b>Motivo:</b> {motivoRecusa}
+                  <b>Motivo:</b> {proposta.feedback}
                 </p>
+              )}
+
+              {proposta.dataAnalise && (
+                <p>Data da análise: {formatarData(proposta.dataAnalise)}</p>
               )}
             </section>
           </div>
