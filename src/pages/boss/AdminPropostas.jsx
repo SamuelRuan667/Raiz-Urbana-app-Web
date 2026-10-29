@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./AdminPropostas.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:8080"
+).replace(/\/+$/, "");
 
 function AdminPropostas() {
   const [filtro, setFiltro] = useState("TODAS");
@@ -20,7 +22,9 @@ function AdminPropostas() {
         sessionStorage.getItem("token");
 
       if (!token) {
-        throw new Error("Sua sessão não foi encontrada. Entre novamente como BOSS.");
+        throw new Error(
+          "Sua sessão não foi encontrada. Entre novamente como BOSS."
+        );
       }
 
       const resposta = await fetch(
@@ -40,13 +44,24 @@ function AdminPropostas() {
         );
       }
 
+      const dados = await resposta.json().catch(() => null);
+
       if (!resposta.ok) {
-        throw new Error("Não foi possível carregar as propostas.");
+        throw new Error(
+          dados?.message ||
+            dados?.mensagem ||
+            dados?.erro ||
+            "Não foi possível carregar as propostas."
+        );
       }
 
-      const dados = await resposta.json();
+      if (!Array.isArray(dados)) {
+        throw new Error(
+          "O servidor retornou um formato inesperado para as propostas."
+        );
+      }
 
-      setPropostas(Array.isArray(dados) ? dados : []);
+      setPropostas(dados);
     } catch (erroConsulta) {
       setErro(
         erroConsulta.message ||
@@ -61,10 +76,18 @@ function AdminPropostas() {
     carregarPropostas();
   }, [carregarPropostas]);
 
+  const propostasOrdenadas = [...propostas].sort((a, b) => {
+    if (!a.dataEnvio) return 1;
+    if (!b.dataEnvio) return -1;
+
+    return new Date(b.dataEnvio).getTime() -
+      new Date(a.dataEnvio).getTime();
+  });
+
   const propostasFiltradas =
     filtro === "TODAS"
-      ? propostas
-      : propostas.filter(
+      ? propostasOrdenadas
+      : propostasOrdenadas.filter(
           (proposta) => proposta.status === filtro
         );
 
@@ -76,7 +99,7 @@ function AdminPropostas() {
     (proposta) => proposta.status === "APROVADA"
   ).length;
 
-  const quantidadeRecusadas = propostas.filter(
+  const quantidadeRejeitadas = propostas.filter(
     (proposta) => proposta.status === "REJEITADA"
   ).length;
 
@@ -133,6 +156,26 @@ function AdminPropostas() {
     });
   };
 
+  const obterTipoParceria = (proposta) => {
+    if (proposta.tipoParceria || proposta.tipo) {
+      return proposta.tipoParceria || proposta.tipo;
+    }
+
+    if (proposta.proposta) {
+      const primeiraLinha = proposta.proposta
+        .split("\n")
+        .find((linha) => linha.trim());
+
+      if (primeiraLinha) {
+        return primeiraLinha
+          .replace(/^Tipo de parceria:\s*/i, "")
+          .trim();
+      }
+    }
+
+    return "Não informado";
+  };
+
   return (
     <main className="admin-propostas-page">
       <div className="admin-propostas-container">
@@ -185,7 +228,7 @@ function AdminPropostas() {
               ×
             </div>
             <div>
-              <strong>{quantidadeRecusadas}</strong>
+              <strong>{quantidadeRejeitadas}</strong>
               <span>Rejeitadas</span>
             </div>
           </div>
@@ -212,6 +255,7 @@ function AdminPropostas() {
                   key={opcao.valor}
                   type="button"
                   className={filtro === opcao.valor ? "ativo" : ""}
+                  aria-pressed={filtro === opcao.valor}
                   onClick={() => setFiltro(opcao.valor)}
                 >
                   {opcao.texto}
@@ -223,8 +267,12 @@ function AdminPropostas() {
           {erro && (
             <div className="admin-detalhes-erro" role="alert">
               <p>{erro}</p>
-              <button type="button" onClick={carregarPropostas}>
-                Tentar novamente
+              <button
+                type="button"
+                onClick={carregarPropostas}
+                disabled={carregando}
+              >
+                {carregando ? "Carregando..." : "Tentar novamente"}
               </button>
             </div>
           )}
@@ -237,7 +285,7 @@ function AdminPropostas() {
             <div className="admin-propostas-vazio">
               Nenhuma proposta encontrada.
             </div>
-          ) : (
+          ) : !erro ? (
             <div className="admin-propostas-lista">
               {propostasFiltradas.map((proposta) => (
                 <div
@@ -269,15 +317,7 @@ function AdminPropostas() {
 
                   <div className="admin-propostas-dado">
                     <span>Tipo de parceria</span>
-                    <strong>
-                      {proposta.tipoParceria ||
-                        proposta.tipo ||
-                        (proposta.proposta
-                          ? proposta.proposta
-                              .split("\n")[0]
-                              .replace("Tipo de parceria: ", "")
-                          : "Não informado")}
-                    </strong>
+                    <strong>{obterTipoParceria(proposta)}</strong>
                   </div>
 
                   <div className="admin-propostas-dado">
@@ -306,7 +346,7 @@ function AdminPropostas() {
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </section>
       </div>
     </main>

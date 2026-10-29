@@ -1,9 +1,10 @@
-
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import "./AdminPropostaDetalhes.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const API_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:8080"
+).replace(/\/+$/, "");
 
 function obterToken() {
   return localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -23,7 +24,7 @@ function formatarData(data) {
 }
 
 function formatarCNPJ(cnpj) {
-  const numeros = (cnpj || "").replace(/\D/g, "");
+  const numeros = String(cnpj || "").replace(/\D/g, "");
 
   if (numeros.length !== 14) return cnpj || "Não informado";
 
@@ -34,7 +35,7 @@ function formatarCNPJ(cnpj) {
 }
 
 function formatarTelefone(telefone) {
-  const numeros = (telefone || "").replace(/\D/g, "");
+  const numeros = String(telefone || "").replace(/\D/g, "");
 
   if (numeros.length === 11) {
     return numeros.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
@@ -48,7 +49,7 @@ function formatarTelefone(telefone) {
 }
 
 function formatarCEP(cep) {
-  const numeros = (cep || "").replace(/\D/g, "");
+  const numeros = String(cep || "").replace(/\D/g, "");
 
   if (numeros.length === 8) {
     return numeros.replace(/^(\d{5})(\d{3})$/, "$1-$2");
@@ -63,7 +64,8 @@ function extrairProposta(texto = "") {
 
   return {
     tipoParceria: tipo?.[1]?.trim() || "Não informado",
-    descricao: descricao?.[1]?.trim() || texto || "Nenhuma descrição informada.",
+    descricao:
+      descricao?.[1]?.trim() || texto || "Nenhuma descrição informada.",
   };
 }
 
@@ -77,6 +79,19 @@ function traduzirTipo(tipo) {
   };
 
   return tipos[tipo] || tipo || "Não informado";
+}
+
+async function lerResposta(resposta) {
+  return resposta.json().catch(() => ({}));
+}
+
+function obterMensagemErro(resultado, mensagemPadrao) {
+  return (
+    resultado?.erro ||
+    resultado?.message ||
+    resultado?.mensagem ||
+    mensagemPadrao
+  );
 }
 
 function AdminPropostaDetalhes() {
@@ -101,7 +116,7 @@ function AdminPropostaDetalhes() {
       }
 
       const resposta = await fetch(
-        `${API_URL.replace(/\/$/, "")}/api/propostas-parceria/admin/${id}`,
+        `${API_URL}/api/propostas-parceria/admin/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -109,7 +124,7 @@ function AdminPropostaDetalhes() {
         }
       );
 
-      const resultado = await resposta.json().catch(() => ({}));
+      const resultado = await lerResposta(resposta);
 
       if (!resposta.ok) {
         if (resposta.status === 401) {
@@ -117,19 +132,24 @@ function AdminPropostaDetalhes() {
         }
 
         if (resposta.status === 403) {
-          throw new Error("Você não tem permissão para acessar esta proposta.");
+          throw new Error(
+            "Você não tem permissão para acessar esta proposta."
+          );
         }
 
         throw new Error(
-          resultado.erro ||
-            resultado.message ||
+          obterMensagemErro(
+            resultado,
             "Não foi possível carregar os detalhes da proposta."
+          )
         );
       }
 
       setProposta(resultado);
+      return resultado;
     } catch (e) {
       setErro(e.message || "Não foi possível carregar a proposta.");
+      return null;
     } finally {
       setCarregando(false);
     }
@@ -143,18 +163,21 @@ function AdminPropostaDetalhes() {
     if (!proposta || processando) return;
 
     if (proposta.status !== "PENDENTE") {
-      alert("Esta proposta já foi analisada.");
+      setErro("Esta proposta já foi analisada.");
       return;
     }
 
     if (acao === "rejeitar" && !motivoRecusa.trim()) {
-      alert("Informe o motivo da rejeição.");
+      setErro("Informe o motivo da rejeição.");
       return;
     }
 
+    const nomeEmpresa =
+      proposta.nomeFantasia || proposta.razaoSocial || "esta empresa";
+
     const mensagem =
       acao === "aprovar"
-        ? `Deseja aprovar a proposta da empresa ${proposta.nomeFantasia || proposta.razaoSocial}?`
+        ? `Deseja aprovar a proposta da empresa ${nomeEmpresa}?`
         : "Deseja realmente rejeitar esta proposta?";
 
     if (!window.confirm(mensagem)) return;
@@ -169,30 +192,28 @@ function AdminPropostaDetalhes() {
         throw new Error("Sua sessão expirou. Faça login novamente.");
       }
 
-      const endpoint =
-        acao === "aprovar"
-          ? "aprovar"
-          : "rejeitar";
+      const endpoint = acao === "aprovar" ? "aprovar" : "rejeitar";
+
+      const opcoes = {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      if (acao === "rejeitar") {
+        opcoes.body = JSON.stringify({
+          feedback: motivoRecusa.trim(),
+        });
+      }
 
       const resposta = await fetch(
-        `${API_URL.replace(/\/$/, "")}/api/propostas-parceria/admin/${id}/${endpoint}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          ...(acao === "rejeitar"
-            ? {
-                body: JSON.stringify({
-                  feedback: motivoRecusa.trim(),
-                }),
-              }
-            : {}),
-        }
+        `${API_URL}/api/propostas-parceria/admin/${id}/${endpoint}`,
+        opcoes
       );
 
-      const resultado = await resposta.json().catch(() => ({}));
+      const resultado = await lerResposta(resposta);
 
       if (!resposta.ok) {
         if (resposta.status === 401) {
@@ -200,23 +221,43 @@ function AdminPropostaDetalhes() {
         }
 
         if (resposta.status === 403) {
-          throw new Error("Você não tem permissão para analisar propostas.");
+          throw new Error(
+            "Você não tem permissão para analisar propostas."
+          );
         }
 
         throw new Error(
-          resultado.erro ||
-            resultado.message ||
+          obterMensagemErro(
+            resultado,
             "Não foi possível concluir a análise."
+          )
         );
       }
-
-      await carregarProposta();
 
       setMostrarRecusa(false);
       setMotivoRecusa("");
 
+      const propostaAtualizada = await carregarProposta();
+
+      if (!propostaAtualizada) {
+        setErro(
+          "A análise foi enviada, mas não foi possível atualizar os detalhes. Tente recarregar a página."
+        );
+        return;
+      }
+
+      if (
+        propostaAtualizada.status !== "APROVADA" &&
+        propostaAtualizada.status !== "REJEITADA"
+      ) {
+        setErro(
+          "A solicitação foi enviada, mas o status atualizado não foi confirmado. Recarregue os detalhes."
+        );
+        return;
+      }
+
       alert(
-        acao === "aprovar"
+        propostaAtualizada.status === "APROVADA"
           ? "Proposta aprovada com sucesso!"
           : "Proposta rejeitada com sucesso!"
       );
@@ -230,13 +271,16 @@ function AdminPropostaDetalhes() {
   const cancelarRecusa = () => {
     setMostrarRecusa(false);
     setMotivoRecusa("");
+    setErro("");
   };
 
   if (carregando) {
     return (
       <main className="admin-detalhes-page">
         <div className="admin-detalhes-container">
-          <p className="admin-detalhes-mensagem">Carregando proposta...</p>
+          <p className="admin-detalhes-mensagem">
+            Carregando proposta...
+          </p>
         </div>
       </main>
     );
@@ -252,6 +296,29 @@ function AdminPropostaDetalhes() {
 
           <div className="admin-detalhes-erro" role="alert">
             <p>{erro}</p>
+            <button
+              type="button"
+              onClick={carregarProposta}
+              disabled={carregando}
+            >
+              Tentar novamente
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!proposta) {
+    return (
+      <main className="admin-detalhes-page">
+        <div className="admin-detalhes-container">
+          <div className="admin-detalhes-voltar">
+            <Link to="/admin/propostas">← Voltar para propostas</Link>
+          </div>
+
+          <div className="admin-detalhes-erro" role="alert">
+            <p>Não foi possível encontrar esta proposta.</p>
             <button type="button" onClick={carregarProposta}>
               Tentar novamente
             </button>
@@ -261,8 +328,9 @@ function AdminPropostaDetalhes() {
     );
   }
 
-  const dadosProposta = extrairProposta(proposta?.proposta);
-  const status = proposta?.status || "PENDENTE";
+  const dadosProposta = extrairProposta(proposta.proposta);
+  const status = proposta.status || "PENDENTE";
+
   const statusTexto = {
     PENDENTE: "Aguardando análise",
     APROVADA: "Aprovada",
@@ -284,7 +352,7 @@ function AdminPropostaDetalhes() {
 
         {erro && (
           <div className="admin-detalhes-erro" role="alert">
-            {erro}
+            <p>{erro}</p>
           </div>
         )}
 
@@ -297,11 +365,16 @@ function AdminPropostaDetalhes() {
             <h1>{proposta.nomeFantasia || proposta.razaoSocial}</h1>
 
             <p>
-              Analise os dados da empresa e a proposta enviada para o Raiz Urbana.
+              Analise os dados da empresa e a proposta enviada para o Raiz
+              Urbana.
             </p>
           </div>
 
-          <span className={`admin-detalhes-status ${statusClasse[status] || "status-pendente"}`}>
+          <span
+            className={`admin-detalhes-status ${
+              statusClasse[status] || "status-pendente"
+            }`}
+          >
             {statusTexto[status] || status}
           </span>
         </section>
@@ -411,7 +484,10 @@ function AdminPropostaDetalhes() {
                 <button
                   type="button"
                   className="admin-recusar"
-                  onClick={() => setMostrarRecusa(true)}
+                  onClick={() => {
+                    setErro("");
+                    setMostrarRecusa(true);
+                  }}
                   disabled={processando}
                 >
                   Rejeitar proposta
@@ -430,7 +506,9 @@ function AdminPropostaDetalhes() {
 
             {mostrarRecusa && (
               <div className="admin-recusa-container">
-                <label htmlFor="motivoRecusa">Motivo da rejeição</label>
+                <label htmlFor="motivoRecusa">
+                  Motivo da rejeição
+                </label>
 
                 <textarea
                   id="motivoRecusa"
@@ -459,7 +537,9 @@ function AdminPropostaDetalhes() {
                     onClick={() => executarAnalise("rejeitar")}
                     disabled={processando || !motivoRecusa.trim()}
                   >
-                    {processando ? "Processando..." : "Confirmar rejeição"}
+                    {processando
+                      ? "Processando..."
+                      : "Confirmar rejeição"}
                   </button>
                 </div>
               </div>
@@ -474,11 +554,14 @@ function AdminPropostaDetalhes() {
             <section>
               <strong>Empresa aprovada</strong>
               <p>
-                Esta empresa foi aprovada para participar do programa de parceiros
-                do Raiz Urbana.
+                Esta empresa foi aprovada para participar do programa de
+                parceiros do Raiz Urbana.
               </p>
+
               {proposta.dataAnalise && (
-                <p>Data da análise: {formatarData(proposta.dataAnalise)}</p>
+                <p>
+                  Data da análise: {formatarData(proposta.dataAnalise)}
+                </p>
               )}
             </section>
           </div>
@@ -499,7 +582,9 @@ function AdminPropostaDetalhes() {
               )}
 
               {proposta.dataAnalise && (
-                <p>Data da análise: {formatarData(proposta.dataAnalise)}</p>
+                <p>
+                  Data da análise: {formatarData(proposta.dataAnalise)}
+                </p>
               )}
             </section>
           </div>
